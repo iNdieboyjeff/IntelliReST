@@ -1,6 +1,6 @@
 <idea-plugin version="2">
-  <id>com.your.company.unique.plugin.id</id>
-  <name>Plugin display name here</name>
+  <id>uk.me.jeffsutton.restconsole</id>
+  <name>ReST Console</name>
   <version>1.0</version>
   <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
 
@@ -26,6 +26,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <!-- Add your extensions here -->
+    <toolWindow id="ReST Console" anchor="right" factoryClass="uk.me.jeffsutton.ReSTWindowFactory" />
   </extensions>
 
   <actions>
