@@ -12,5 +12,6 @@
     <orderEntry type="library" name="com.squareup.okhttp:okhttp:2.7.0" level="project" />
     <orderEntry type="library" name="com.fifesoft:rsyntaxtextarea:2.5.8" level="project" />
     <orderEntry type="library" name="commons-io:commons-io:2.4" level="project" />
+    <orderEntry type="library" name="org.simpleframework:simple-xml:2.7.1" level="project" />
   </component>
 </module>
