@@ -23,20 +23,26 @@ public class CharlesSession {
         @Attribute(name="charset", required=false)
         String charset;
 
+        @ElementList(name="headers", required=false)
+        List<Header> headers;
+
         @Attribute(name="headers", required=false)
-        Headers headers;
+        Integer headerCount;
 
         @Attribute(name="mime-type", required=false)
         String mimeType;
 
-        @Attribute(name="body", required=false)
+        @Element(name="body", required=false)
         Body body;
+
+        @Attribute(name="body", required=false)
+        Integer bodyCount;
 
         public String getCharset() {return this.charset;}
         public void setCharset(String value) {this.charset = value;}
 
-        public Headers getHeaders() {return this.headers;}
-        public void setHeaders(Headers value) {this.headers = value;}
+        public List<Header> getHeaders() {return this.headers;}
+        public void setHeaders(List<Header> value) {this.headers = value;}
 
         public String getMimeType() {return this.mimeType;}
         public void setMimeType(String value) {this.mimeType = value;}
@@ -46,26 +52,12 @@ public class CharlesSession {
 
     }
 
-    public static class Headers {
 
-        @Element(name="first-line", required=false)
-        FirstLine firstLine;
-
-        @ElementList(name="header", required=false, entry="header", inline=true)
-        List<Header> header;
-
-        public FirstLine getFirstLine() {return this.firstLine;}
-        public void setFirstLine(FirstLine value) {this.firstLine = value;}
-
-        public List<Header> getHeader() {return this.header;}
-        public void setHeader(List<Header> value) {this.header = value;}
-
-    }
 
     public static class Response {
 
         @Attribute(name="headers", required=false)
-        Headers headers;
+        Integer headerCount;
 
         @Attribute(name="charset", required=false)
         String charset;
@@ -74,13 +66,19 @@ public class CharlesSession {
         String mimeType;
 
         @Attribute(name="body", required=false)
+        Integer bodyCount;
+
+        @Element(name="body", required=false)
         Body body;
 
         @Attribute(name="status", required=false)
         Integer status;
 
-        public Headers getHeaders() {return this.headers;}
-        public void setHeaders(Headers value) {this.headers = value;}
+        @ElementList(name="headers", required=false)
+        List<Header> headers;
+
+        public List<Header> getHeaders() {return this.headers;}
+        public void setHeaders(List<Header> value) {this.headers = value;}
 
         public String getCharset() {return this.charset;}
         public void setCharset(String value) {this.charset = value;}
@@ -93,32 +91,6 @@ public class CharlesSession {
 
         public Integer getStatus() {return this.status;}
         public void setStatus(Integer value) {this.status = value;}
-
-    }
-
-    public static class FirstLine {
-
-        @Element(name="#cdata-section", required=false)
-        String cdataSection;
-
-        public String getCdataSection() {return this.cdataSection;}
-        public void setCdataSection(String value) {this.cdataSection = value;}
-
-    }
-
-    public static class Header {
-
-        @Element(name="name", required=false)
-        String name;
-
-        @Element(name="value", required=false)
-        String value;
-
-        public String getName() {return this.name;}
-        public void setName(String value) {this.name = value;}
-
-        public String getValue() {return this.value;}
-        public void setValue(String value) {this.value = value;}
 
     }
 
@@ -140,46 +112,46 @@ public class CharlesSession {
 
     public static class Transaction {
 
-        @Attribute(name="requestBeginTime", required=false)
-        Double requestBeginTime;
+        @Attribute(name="requestBeginTime", required=true)
+        String requestBeginTime;
 
         @Element(name="request", required=false)
         Request request;
 
-        @Attribute(name="method", required=false)
+        @Attribute(name="method", required=true)
         String method;
 
-        @Attribute(name="startTimeMillis", required=false)
+        @Attribute(name="startTimeMillis", required=true)
         Long startTimeMillis;
 
-        @Attribute(name="actualPort", required=false)
+        @Attribute(name="actualPort", required=true)
         Integer actualPort;
 
         @Attribute(name="requestTimeMillis", required=false)
         Long requestTimeMillis;
 
-        @Attribute(name="responseTime", required=false)
-        Double responseTime;
+        @Attribute(name="responseTime", required=true)
+        String responseTime;
 
-        @Attribute(name="query", required=false)
+        @Attribute(name="query", required=true)
         String query;
 
-        @Attribute(name="responseTimeMillis", required=false)
+        @Attribute(name="responseTimeMillis", required=true)
         Long responseTimeMillis;
 
-        @Attribute(name="clientAddress", required=false)
-        Integer clientAddress;
+        @Attribute(name="clientAddress", required=true)
+        String clientAddress;
 
         @Attribute(name="requestTime", required=false)
-        Double requestTime;
+        String requestTime;
 
-        @Attribute(name="path", required=false)
+        @Attribute(name="path", required=true)
         String path;
 
-        @Attribute(name="endTimeMillis", required=false)
+        @Attribute(name="endTimeMillis", required=true)
         Long endTimeMillis;
 
-        @Attribute(name="protocol", required=false)
+        @Attribute(name="protocol", required=true)
         String protocol;
 
         @Element(name="response", required=false)
@@ -189,7 +161,7 @@ public class CharlesSession {
         String connectDuration;
 
         @Attribute(name="host", required=false)
-        Double host;
+        String host;
 
         @Attribute(name="requestBeginTimeMillis", required=false)
         Long requestBeginTimeMillis;
@@ -198,22 +170,22 @@ public class CharlesSession {
         String protocolVersion;
 
         @Attribute(name="startTime", required=false)
-        Double startTime;
+        String startTime;
 
         @Attribute(name="endTime", required=false)
-        Double endTime;
+        String endTime;
 
         @Attribute(name="dnsDuration", required=false)
         Integer dnsDuration;
 
-        @Attribute(name="remoteAddress", required=false)
-        Double remoteAddress;
+        @Attribute(name="remoteAddress", required=true)
+        String remoteAddress;
 
         @Attribute(name="status", required=false)
         String status;
 
-        public Double getRequestBeginTime() {return this.requestBeginTime;}
-        public void setRequestBeginTime(Double value) {this.requestBeginTime = value;}
+        public String getRequestBeginTime() {return this.requestBeginTime;}
+        public void setRequestBeginTime(String value) {this.requestBeginTime = value;}
 
         public Request getRequest() {return this.request;}
         public void setRequest(Request value) {this.request = value;}
@@ -230,8 +202,8 @@ public class CharlesSession {
         public Long getRequestTimeMillis() {return this.requestTimeMillis;}
         public void setRequestTimeMillis(Long value) {this.requestTimeMillis = value;}
 
-        public Double getResponseTime() {return this.responseTime;}
-        public void setResponseTime(Double value) {this.responseTime = value;}
+        public String getResponseTime() {return this.responseTime;}
+        public void setResponseTime(String value) {this.responseTime = value;}
 
         public String getQuery() {return this.query;}
         public void setQuery(String value) {this.query = value;}
@@ -239,11 +211,11 @@ public class CharlesSession {
         public Long getResponseTimeMillis() {return this.responseTimeMillis;}
         public void setResponseTimeMillis(Long value) {this.responseTimeMillis = value;}
 
-        public Integer getClientAddress() {return this.clientAddress;}
-        public void setClientAddress(Integer value) {this.clientAddress = value;}
+        public String getClientAddress() {return this.clientAddress;}
+        public void setClientAddress(String value) {this.clientAddress = value;}
 
-        public Double getRequestTime() {return this.requestTime;}
-        public void setRequestTime(Double value) {this.requestTime = value;}
+        public String getRequestTime() {return this.requestTime;}
+        public void setRequestTime(String value) {this.requestTime = value;}
 
         public String getPath() {return this.path;}
         public void setPath(String value) {this.path = value;}
@@ -260,8 +232,8 @@ public class CharlesSession {
         public String getConnectDuration() {return this.connectDuration;}
         public void setConnectDuration(String value) {this.connectDuration = value;}
 
-        public Double getHost() {return this.host;}
-        public void setHost(Double value) {this.host = value;}
+        public String getHost() {return this.host;}
+        public void setHost(String value) {this.host = value;}
 
         public Long getRequestBeginTimeMillis() {return this.requestBeginTimeMillis;}
         public void setRequestBeginTimeMillis(Long value) {this.requestBeginTimeMillis = value;}
@@ -269,17 +241,17 @@ public class CharlesSession {
         public String getProtocolVersion() {return this.protocolVersion;}
         public void setProtocolVersion(String value) {this.protocolVersion = value;}
 
-        public Double getStartTime() {return this.startTime;}
-        public void setStartTime(Double value) {this.startTime = value;}
+        public String getStartTime() {return this.startTime;}
+        public void setStartTime(String value) {this.startTime = value;}
 
-        public Double getEndTime() {return this.endTime;}
-        public void setEndTime(Double value) {this.endTime = value;}
+        public String getEndTime() {return this.endTime;}
+        public void setEndTime(String value) {this.endTime = value;}
 
         public Integer getDnsDuration() {return this.dnsDuration;}
         public void setDnsDuration(Integer value) {this.dnsDuration = value;}
 
-        public Double getRemoteAddress() {return this.remoteAddress;}
-        public void setRemoteAddress(Double value) {this.remoteAddress = value;}
+        public String getRemoteAddress() {return this.remoteAddress;}
+        public void setRemoteAddress(String value) {this.remoteAddress = value;}
 
         public String getStatus() {return this.status;}
         public void setStatus(String value) {this.status = value;}

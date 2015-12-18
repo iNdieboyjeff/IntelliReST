@@ -4,9 +4,12 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.intellij.openapi.fileChooser.FileChooser;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
@@ -15,6 +18,8 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.containers.HashMap;
 import com.squareup.okhttp.*;
+import com.sun.javafx.fxml.builder.URLBuilder;
+import com.sun.jna.platform.win32.WinDef;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.BufferedSource;
@@ -25,6 +30,10 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jetbrains.annotations.NotNull;
+import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.core.Persister;
+import uk.me.jeffsutton.model.CharlesSession;
+import uk.me.jeffsutton.model.Header;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -69,6 +78,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
     private RSyntaxTextArea text2;
     private JTextArea textArea2;
     private JComboBox comboBox3;
+    private JButton importButton;
     private ToolWindow myToolWindow;
     private Project project;
 
@@ -121,6 +131,86 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                 RSyntaxTextArea1.setSyntaxEditingStyle(textField2.getSelectedItem().toString());
             }
         });
+        importButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                importRequest();
+            }
+        });
+    }
+
+    private void importRequest() {
+        FileChooserDescriptor Descriptor = new FileChooserDescriptor(true, false, false, false, false, false);
+        Descriptor.setShowFileSystemRoots(true);
+        Descriptor.withFileFilter(new Condition<VirtualFile>() {
+            @Override
+            public boolean value(VirtualFile virtualFile) {
+                return virtualFile != null && virtualFile.getExtension() != null && virtualFile.getExtension().equalsIgnoreCase("xml");
+            }
+        });
+        VirtualFile VirtualFile = FileChooser.chooseFile(Descriptor, project, null);
+        if (VirtualFile != null) {
+            Serializer serializer = new Persister();
+            try {
+                CharlesSession session = serializer.read(CharlesSession.class, new File(VirtualFile.getCanonicalPath()));
+
+                if (session.getTransaction() != null && session.getTransaction().size() > 0) {
+                    CharlesSession.Transaction t = session.getTransaction().get(0);
+
+                    comboBox1.setSelectedItem(t.getProtocol());
+                    textField1.setText(t.getHost() + t.getPath());
+                    comboBox2.setSelectedItem(t.getMethod());
+                    try {
+                        RSyntaxTextArea1.setText(t.getRequest().getBody().getCdataSection());
+                    } catch (Exception err) {
+                        RSyntaxTextArea1.setText(null);
+                    }
+
+                    URIBuilder b = new URIBuilder();
+                    b.setScheme(t.getProtocol());
+                    b.setHost(t.getHost());
+                    b.setPath(t.getPath());
+                    b.setCustomQuery(t.getQuery());
+                    String column_names[] = {"Key", "Value"};
+                    DefaultTableModel table_model = new DefaultTableModel(column_names, 0);
+                    table1.setModel(table_model);
+                    table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    try {
+                        Map<String,String> q = splitQuery(b.build().toURL());
+                        for (Map.Entry<String, String> e : q.entrySet()) {
+                            ((DefaultTableModel) table1.getModel()).addRow(new String[] {e.getKey(),e.getValue()});
+                        }
+                    } catch (UnsupportedEncodingException e) {
+                    } catch (MalformedURLException e) {
+                    }
+                     column_names = new String[] {"Key", "Value"};
+                     table_model = new DefaultTableModel(column_names, 0);
+                    table2.setModel(table_model);
+                    table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                    if (t.getRequest().getHeaders() != null && t.getRequest().getHeaders().size() > 0) {
+                        for (Header e : t.getRequest().getHeaders()) {
+                            try {
+                                if (e.getName().equalsIgnoreCase("User-Agent")) {
+                                    comboBox3.setSelectedItem(e.getValue());
+                                } else if (e.getName().equalsIgnoreCase("Content-Type")) {
+                                    textField2.setSelectedItem(e.getValue());
+                                    if (e.getValue().endsWith("/json"))
+                                        RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                } else if (e.getName().equalsIgnoreCase("Accept")) {
+                                    textField3.setSelectedItem(e.getValue());
+                                } else {
+                                    ((DefaultTableModel) table2.getModel()).addRow(new String[]{e.getName(), e.getValue()});
+                                }
+                            } catch (Exception eee) {}
+                        }
+                    }
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -197,8 +287,9 @@ public class ReSTWindowFactory implements ToolWindowFactory {
     public static Map<String, String> splitQuery(URL url) throws UnsupportedEncodingException {
         Map<String, String> query_pairs = new LinkedHashMap<String, String>();
         String query = url.getQuery();
-        if (query != null) {
+        if (query != null && !query.equalsIgnoreCase("")) {
             String[] pairs = query.split("&");
+            if (pairs != null && pairs.length > 0)
             for (String pair : pairs) {
                 int idx = pair.indexOf("=");
                 query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
