@@ -35,6 +35,8 @@ import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 import uk.me.jeffsutton.model.CharlesSession;
 import uk.me.jeffsutton.model.Header;
+import uk.me.jeffsutton.model.dhc.DHC;
+import uk.me.jeffsutton.model.dhc.Node;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -56,6 +58,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -152,7 +155,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
         Descriptor.withFileFilter(new Condition<VirtualFile>() {
             @Override
             public boolean value(VirtualFile virtualFile) {
-                return virtualFile != null && virtualFile.getExtension() != null && virtualFile.getExtension().equalsIgnoreCase("xml");
+                return virtualFile != null && virtualFile.getExtension() != null && (virtualFile.getExtension().equalsIgnoreCase("xml") || virtualFile.getExtension().equalsIgnoreCase("json") );
             }
         });
         VirtualFile VirtualFile = FileChooser.chooseFile(Descriptor, project, null);
@@ -264,10 +267,74 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                         }
                     }
                 }
-
+                return;
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+
+            try {
+                Gson gson = new Gson();
+                DHC d = gson.fromJson(new FileReader(new File(VirtualFile.getCanonicalPath())), DHC.class);
+                List<Node> nodes = d.getRequestNodes();
+                Node n = null;
+                if (nodes != null ) {
+                    if (nodes.size() == 1) {
+                        n = nodes.get(0);
+                    } else {
+                        n = (Node) JOptionPane.showInputDialog(null, "Select request to load", "Load DHC Request", JOptionPane.QUESTION_MESSAGE, null, nodes.toArray(), nodes.get(0));
+                    }
+                }
+                if (n != null) {
+                    comboBox1.setSelectedItem(n.getUri().getScheme().getName().toUpperCase());
+                    textField1.setText(n.getUri().getPath());
+                    comboBox2.setSelectedItem(n.getMethod().getName().toUpperCase());
+
+                    String[] column_names = new String[] {"Key", "Value"};
+                    DefaultTableModel table_model = new DefaultTableModel(column_names, 0);
+                    table2.setModel(table_model);
+                    table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+                    if (n.getHeaders() != null && n.getHeaders().size() > 0) {
+                        for (uk.me.jeffsutton.model.dhc.Header e : n.getHeaders()) {
+                            try {
+                                if (e.getName().equalsIgnoreCase("User-Agent")) {
+                                    comboBox3.setSelectedItem(e.getValue());
+                                } else if (e.getName().equalsIgnoreCase("Content-Type")) {
+                                    textField2.setSelectedItem(e.getValue());
+                                    if (e.getValue().endsWith("/json"))
+                                        RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                } else if (e.getName().equalsIgnoreCase("Accept")) {
+                                    textField3.setSelectedItem(e.getValue());
+                                } else {
+                                    ((DefaultTableModel) table2.getModel()).addRow(new String[]{e.getName(), e.getValue()});
+                                }
+                            } catch (Exception eee) {}
+                        }
+                    }
+                    column_names = new String[] {"Key", "Value"};
+                     table_model = new DefaultTableModel(column_names, 0);
+                    table1.setModel(table_model);
+                    table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    if (n.getUri() != null && n.getUri().query != null && n.getUri().query.items != null) {
+                        try {
+                            for (uk.me.jeffsutton.model.dhc.Header e : n.getUri().query.items) {
+                                ((DefaultTableModel) table1.getModel()).addRow(new String[]{e.getName(), e.getValue()});
+                            }
+                        } catch (Exception e) {
+                        }
+                    }
+
+                    if (n.getBody() != null) {
+                        RSyntaxTextArea1.setText(n.getBody().getTextBody());
+                    } else {
+                        RSyntaxTextArea1.setText(null);
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
     }
 
@@ -539,7 +606,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                                                                                 s = gson.toJson(el);
                                                                                 text2.setText((s));
                                                                                 text2.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
-                                                                            } else if (response.body().contentType().subtype().equalsIgnoreCase("xml") || response.body().contentType().subtype().equalsIgnoreCase("rss+xml")) {
+                                                                            } else if (response.body().contentType().subtype().equalsIgnoreCase("xml") || response.body().contentType().subtype().equalsIgnoreCase("rss+xml") || response.body().contentType().subtype().equalsIgnoreCase("smil")) {
                                                                                 Source xmlInput = new StreamSource(new StringReader(s));
                                                                                 StringWriter stringWriter = new StringWriter();
                                                                                 StreamResult xmlOutput = new StreamResult(stringWriter);
