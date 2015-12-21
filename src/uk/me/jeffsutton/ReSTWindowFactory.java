@@ -25,6 +25,7 @@ import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.ByteString;
 import org.apache.http.client.utils.URIBuilder;
+import org.codehaus.groovy.control.io.StringReaderSource;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
@@ -37,6 +38,12 @@ import uk.me.jeffsutton.model.Header;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -128,7 +135,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
         textField2.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea1.setSyntaxEditingStyle(textField2.getSelectedItem().toString());
+                RSyntaxTextArea1.setSyntaxEditingStyle(textField2.getSelectedItem().toString().split(";")[0]);
             }
         });
         importButton.addActionListener(new ActionListener() {
@@ -154,15 +161,66 @@ public class ReSTWindowFactory implements ToolWindowFactory {
             try {
                 CharlesSession session = serializer.read(CharlesSession.class, new File(VirtualFile.getCanonicalPath()));
 
-                if (session.getTransaction() != null && session.getTransaction().size() > 0) {
-                    CharlesSession.Transaction t = session.getTransaction().get(0);
+                if (session == null || session.getTransaction() == null || session.getTransaction().size() == 0) {
+                    // We have no requests to load. Show an error
+                }
+
+                CharlesSession.Transaction t;
+
+                if (session.getTransaction().size() == 1) {
+                    t = session.getTransaction().get(0);
+                } else {
+
+                    t = (CharlesSession.Transaction) JOptionPane.showInputDialog(null, "Select request to load", "Load Charles Proxy Request", JOptionPane.QUESTION_MESSAGE, null, session.getTransaction().toArray(), session.getTransaction().get(0));
+                }
+
+                if (t != null) {
 
                     comboBox1.setSelectedItem(t.getProtocol());
                     textField1.setText(t.getHost() + t.getPath());
                     comboBox2.setSelectedItem(t.getMethod());
-                    try {
-                        RSyntaxTextArea1.setText(t.getRequest().getBody().getCdataSection());
-                    } catch (Exception err) {
+
+                    if (t.getRequest().getBody() != null && t.getRequest().getBody().getCdataSection() != null) {
+                        try {
+                            Source xmlInput = new StreamSource(new StringReader(t.getRequest().getBody().getCdataSection()));
+                            StringWriter stringWriter = new StringWriter();
+                            StreamResult xmlOutput = new StreamResult(stringWriter);
+                            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                            transformerFactory.setAttribute("indent-number", 4);
+
+                            Transformer transformer = transformerFactory.newTransformer();
+                            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                            transformer.transform(xmlInput, xmlOutput);
+                            String s = xmlOutput.getWriter().toString();
+
+                            RSyntaxTextArea1.setAutoIndentEnabled(true);
+                            RSyntaxTextArea1.setCloseCurlyBraces(true);
+                            RSyntaxTextArea1.setCloseMarkupTags(true);
+                            RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+                            RSyntaxTextArea1.setText(s);
+                        } catch (Exception err) {
+                            try {
+                                JsonParser parser = new JsonParser();
+                                JsonElement el = parser.parse(t.getRequest().getBody().getCdataSection());
+
+                                Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
+                                String s = gson.toJson(el);
+
+                                RSyntaxTextArea1.setAutoIndentEnabled(true);
+                                RSyntaxTextArea1.setCloseCurlyBraces(true);
+                                RSyntaxTextArea1.setCloseMarkupTags(true);
+                                RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                RSyntaxTextArea1.setText(s);
+                            } catch (Exception err2) {
+                                err2.printStackTrace();RSyntaxTextArea1.setAutoIndentEnabled(true);
+                                RSyntaxTextArea1.setCloseCurlyBraces(true);
+                                RSyntaxTextArea1.setCloseMarkupTags(true);
+                                RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
+
+                                RSyntaxTextArea1.setText(t.getRequest().getBody().getCdataSection());
+                            }
+                        }
+                    } else {
                         RSyntaxTextArea1.setText(null);
                     }
 
@@ -233,11 +291,17 @@ public class ReSTWindowFactory implements ToolWindowFactory {
         RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         RTextScrollPane1.setLineNumbersEnabled(true);
         RTextScrollPane1.setFoldIndicatorEnabled(true);
+        RSyntaxTextArea1.setCloseCurlyBraces(true);
+        RSyntaxTextArea1.setCloseMarkupTags(true);
+        RSyntaxTextArea1.setCloseMarkupTags(true);
 
         scroll2.setViewportView(text2);
         text2.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         scroll2.setLineNumbersEnabled(true);
         scroll2.setFoldIndicatorEnabled(true);
+        text2.setCloseCurlyBraces(true);
+        text2.setCloseMarkupTags(true);
+        text2.setCloseMarkupTags(true);
 
         File f = new File(project.getWorkspaceFile().getParent().getCanonicalPath(), "restRequest.json");
         if (f.exists()) {
@@ -330,6 +394,11 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                     @Override
                     public MediaType contentType() {
                         return MediaType.parse(textField2.getSelectedItem().toString());
+                    }
+
+                    @Override
+                    public long contentLength() throws IOException {
+                        return RSyntaxTextArea1.getText().getBytes().length;
                     }
 
                     @Override
@@ -470,6 +539,19 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                                                                                 s = gson.toJson(el);
                                                                                 text2.setText((s));
                                                                                 text2.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                                                            } else if (response.body().contentType().subtype().equalsIgnoreCase("xml") || response.body().contentType().subtype().equalsIgnoreCase("rss+xml")) {
+                                                                                Source xmlInput = new StreamSource(new StringReader(s));
+                                                                                StringWriter stringWriter = new StringWriter();
+                                                                                StreamResult xmlOutput = new StreamResult(stringWriter);
+                                                                                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                                                                                transformerFactory.setAttribute("indent-number", 4);
+
+                                                                                Transformer transformer = transformerFactory.newTransformer();
+                                                                                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                                                                                transformer.transform(xmlInput, xmlOutput);
+                                                                                String s2 = xmlOutput.getWriter().toString();
+                                                                                text2.setText((s2));
+                                                                                text2.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
                                                                             }
 
 

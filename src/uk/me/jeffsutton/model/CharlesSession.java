@@ -65,6 +65,10 @@ public class CharlesSession {
         @Attribute(name="mime-type", required=false)
         String mimeType;
 
+        @Attribute(name="contentEncoding", required=false)
+        String contentEncoding;
+
+
         @Attribute(name="body", required=false)
         Integer bodyCount;
 
@@ -96,7 +100,7 @@ public class CharlesSession {
 
     public static class Body {
 
-        @Element(name="#cdata-section", required=false)
+        @Text(required=false)
         String cdataSection;
 
         @Attribute(name="encoding", required=false)
@@ -133,7 +137,7 @@ public class CharlesSession {
         @Attribute(name="responseTime", required=true)
         String responseTime;
 
-        @Attribute(name="query", required=true)
+        @Attribute(name="query", required=false)
         String query;
 
         @Attribute(name="responseTimeMillis", required=true)
@@ -183,6 +187,11 @@ public class CharlesSession {
 
         @Attribute(name="status", required=false)
         String status;
+
+        @Override
+        public String toString() {
+            return "[" + this.getMethod() + "] " + this.protocol + "://" + this.getHost() + this.getPath();
+        }
 
         public String getRequestBeginTime() {return this.requestBeginTime;}
         public void setRequestBeginTime(String value) {this.requestBeginTime = value;}
