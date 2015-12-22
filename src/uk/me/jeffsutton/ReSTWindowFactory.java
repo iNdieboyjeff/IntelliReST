@@ -6,8 +6,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.LocalFileSystem;
@@ -18,25 +16,22 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.containers.HashMap;
 import com.squareup.okhttp.*;
-import com.sun.javafx.fxml.builder.URLBuilder;
-import com.sun.jna.platform.win32.WinDef;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.BufferedSource;
 import okio.ByteString;
 import org.apache.http.client.utils.URIBuilder;
-import org.codehaus.groovy.control.io.StringReaderSource;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
-import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jetbrains.annotations.NotNull;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
-import uk.me.jeffsutton.model.CharlesSession;
-import uk.me.jeffsutton.model.Header;
-import uk.me.jeffsutton.model.dhc.DHC;
-import uk.me.jeffsutton.model.dhc.Node;
+import uk.me.jeffsutton.json.dhc.DHC;
+import uk.me.jeffsutton.json.dhc.Node;
+import uk.me.jeffsutton.xml.charles.CharlesSession;
+import uk.me.jeffsutton.xml.charles.Header;
+import uk.me.jeffsutton.xml.charles.Transaction;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -168,24 +163,24 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                     // We have no requests to load. Show an error
                 }
 
-                CharlesSession.Transaction t;
+                Transaction t;
 
                 if (session.getTransaction().size() == 1) {
                     t = session.getTransaction().get(0);
                 } else {
 
-                    t = (CharlesSession.Transaction) JOptionPane.showInputDialog(null, "Select request to load", "Load Charles Proxy Request", JOptionPane.QUESTION_MESSAGE, null, session.getTransaction().toArray(), session.getTransaction().get(0));
+                    t = (Transaction) JOptionPane.showInputDialog(null, "Select request to load", "Load Charles Proxy Request", JOptionPane.QUESTION_MESSAGE, null, session.getTransaction().toArray(), session.getTransaction().get(0));
                 }
 
                 if (t != null) {
 
-                    comboBox1.setSelectedItem(t.getProtocol());
+                    comboBox1.setSelectedItem(t.getProtocol().toUpperCase());
                     textField1.setText(t.getHost() + t.getPath());
-                    comboBox2.setSelectedItem(t.getMethod());
+                    comboBox2.setSelectedItem(t.getMethod().toUpperCase());
 
-                    if (t.getRequest().getBody() != null && t.getRequest().getBody().getCdataSection() != null) {
+                    if (t.getRequest().getBody() != null && t.getRequest().getBody().getValue() != null) {
                         try {
-                            Source xmlInput = new StreamSource(new StringReader(t.getRequest().getBody().getCdataSection()));
+                            Source xmlInput = new StreamSource(new StringReader(t.getRequest().getBody().getValue()));
                             StringWriter stringWriter = new StringWriter();
                             StreamResult xmlOutput = new StreamResult(stringWriter);
                             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -204,7 +199,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                         } catch (Exception err) {
                             try {
                                 JsonParser parser = new JsonParser();
-                                JsonElement el = parser.parse(t.getRequest().getBody().getCdataSection());
+                                JsonElement el = parser.parse(t.getRequest().getBody().getValue());
 
                                 Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
                                 String s = gson.toJson(el);
@@ -220,7 +215,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                                 RSyntaxTextArea1.setCloseMarkupTags(true);
                                 RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
 
-                                RSyntaxTextArea1.setText(t.getRequest().getBody().getCdataSection());
+                                RSyntaxTextArea1.setText(t.getRequest().getBody().getValue());
                             }
                         }
                     } else {
@@ -296,7 +291,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                     table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
                     if (n.getHeaders() != null && n.getHeaders().size() > 0) {
-                        for (uk.me.jeffsutton.model.dhc.Header e : n.getHeaders()) {
+                        for (uk.me.jeffsutton.json.dhc.Header e : n.getHeaders()) {
                             try {
                                 if (e.getName().equalsIgnoreCase("User-Agent")) {
                                     comboBox3.setSelectedItem(e.getValue());
@@ -316,9 +311,9 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                      table_model = new DefaultTableModel(column_names, 0);
                     table1.setModel(table_model);
                     table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                    if (n.getUri() != null && n.getUri().query != null && n.getUri().query.items != null) {
+                    if (n.getUri() != null && n.getUri().query != null && n.getUri().query.getItems() != null) {
                         try {
-                            for (uk.me.jeffsutton.model.dhc.Header e : n.getUri().query.items) {
+                            for (uk.me.jeffsutton.json.dhc.Header e : n.getUri().query.getItems()) {
                                 ((DefaultTableModel) table1.getModel()).addRow(new String[]{e.getName(), e.getValue()});
                             }
                         } catch (Exception e) {

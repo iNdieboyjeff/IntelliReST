@@ -14,5 +14,6 @@
     <orderEntry type="library" name="org.simpleframework:simple-xml:2.7.1" level="project" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="library" name="org.jsonschema2pojo:jsonschema2pojo-core:0.4.11" level="project" />
+    <orderEntry type="library" name="DataModels" level="project" />
   </component>
 </module>
