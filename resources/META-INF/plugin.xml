@@ -1,15 +1,19 @@
 <idea-plugin version="2">
   <id>uk.me.jeffsutton.restconsole</id>
   <name>ReST Console</name>
-  <version>1.1.1</version>
+  <version>1.2</version>
   <vendor email="indieboy1979@gmail.com" >Jeff Sutton</vendor>
 
   <description><![CDATA[
       A simple ReST console for IntelliJ.  <br />Create and test network calls using OK HTTP.
-      <br />Supports import of requests in Charles Proxy XML format, and DHP Json format.
+      <br />Supports import of requests in Charles Proxy XML format, and DHC Json format.
     ]]></description>
 
   <change-notes><![CDATA[
+
+    1.2
+    Add support for Basic Auth
+
     1.1.1
     Change platform targeting
     ]]>

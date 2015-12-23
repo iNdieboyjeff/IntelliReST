@@ -510,8 +510,9 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                 }
             }
 
-            if (textField4.getText() != null && !textField4.getText().equalsIgnoreCase("") && textField5.getText() != null && !textField5.getText().equalsIgnoreCase("")) {
-                String credentals = Credentials.basic(textField4.getText(), textField5.getText());
+            if (textField4.getText() != null && !textField4.getText().equalsIgnoreCase("") &&
+                    textField5.getPassword() != null && !new String(textField5.getPassword()).equalsIgnoreCase("")) {
+                String credentals = Credentials.basic(textField4.getText(), new String(textField5.getPassword()));
                 rb.addHeader("Authorization", credentals);
             }
 
