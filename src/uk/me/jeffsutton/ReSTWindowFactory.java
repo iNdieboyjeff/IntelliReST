@@ -84,6 +84,9 @@ public class ReSTWindowFactory implements ToolWindowFactory {
     private JTextArea textArea2;
     private JComboBox comboBox3;
     private JButton importButton;
+    private JTextField textField4;
+    private JPasswordField textField5;
+    private JButton commonButton;
     private ToolWindow myToolWindow;
     private Project project;
 
@@ -142,6 +145,19 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                 importRequest();
             }
         });
+//        commonButton.addActionListener(new ActionListener() {
+//            @Override
+//            public void actionPerformed(ActionEvent e) {
+//                String[] headers = new String[] {"X-Requested-With", "DNT", "X-Forward-For", "X-Wap-Profile",
+//                        "X-Csrf-Token", "X-Clacks", "Pragma", "If-Match", "If-Modified-Since", "If-None-Match",
+//                        "If-Range", "Max-Forwards", "Origin", "Proxy-Authorization", "Referer"};
+//                String[] commonValues = new String[] {"XMLHttpRequest", "1", "", "", "", "GNU Terry Pratchett",
+//                "","","","","","","","",""};
+//                String[] uaprof = new String[] {"http://wap.sonymobile.com/UAprof/D6503R1701.xml",
+//                "http://wap.sonymobile.com/UAprof/SGP521R1701.xml", "http://wap.samsungmobile.com/uaprof/SM-G920A.xml",
+//                "http://wap.samsungmobile.com/uaprof/SM-G900A.xml", "http://wap.samsungmobile.com/uaprof/GT-I9305.xml"};
+//            }
+//        });
     }
 
     private void importRequest() {
@@ -470,6 +486,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                 };
             }
 
+
             Request.Builder rb = new Request.Builder().url(uri.toString()).method(comboBox2.getSelectedItem().toString(), body);
             request.method = comboBox2.getSelectedItem().toString();
             request.body = RSyntaxTextArea1.getText();
@@ -491,6 +508,11 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                     rb.addHeader(table2.getValueAt(i, 0).toString(), table2.getValueAt(i, 1).toString());
                 } catch (Exception e) {
                 }
+            }
+
+            if (textField4.getText() != null && !textField4.getText().equalsIgnoreCase("") && textField5.getText() != null && !textField5.getText().equalsIgnoreCase("")) {
+                String credentals = Credentials.basic(textField4.getText(), textField5.getText());
+                rb.addHeader("Authorization", credentals);
             }
 
             Request rest_request = rb.build();
