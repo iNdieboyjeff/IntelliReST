@@ -4,11 +4,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/lib/rsyntaxtextarea-2.5.8.jar!/" />
     </CLASSES>
-    <JAVADOC>
-      <root url="jar://$PROJECT_DIR$/lib/rsyntaxtextarea-2.5.8-javadoc.jar!/" />
-    </JAVADOC>
-    <SOURCES>
-      <root url="jar://$PROJECT_DIR$/lib/rsyntaxtextarea-2.5.8-sources.jar!/" />
-    </SOURCES>
+    <JAVADOC />
+    <SOURCES />
   </library>
 </component>
