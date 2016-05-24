@@ -8,7 +8,7 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="1fb8d" class="javax.swing.JButton" binding="SUBMITButton" default-binding="true">
+      <component id="1fb8d" class="javax.swing.JButton" binding="mSubmitButton" default-binding="true">
         <constraints>
           <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -16,7 +16,7 @@
           <text value="SUBMIT"/>
         </properties>
       </component>
-      <tabbedpane id="aee1b" binding="mainTabs">
+      <tabbedpane id="aee1b" binding="mMainTabs">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
             <preferred-size width="200" height="200"/>
@@ -38,7 +38,7 @@
                 <properties/>
                 <border type="etched"/>
                 <children>
-                  <component id="9bda2" class="javax.swing.JComboBox" binding="comboBox1" default-binding="true">
+                  <component id="9bda2" class="javax.swing.JComboBox" binding="mSchemeComboBox" default-binding="true">
                     <constraints>
                       <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -49,7 +49,7 @@
                       </model>
                     </properties>
                   </component>
-                  <component id="f7cf" class="javax.swing.JTextField" binding="textField1" default-binding="true">
+                  <component id="f7cf" class="javax.swing.JTextField" binding="mUrlTextField" default-binding="true">
                     <constraints>
                       <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                         <preferred-size width="150" height="-1"/>
@@ -57,7 +57,7 @@
                     </constraints>
                     <properties/>
                   </component>
-                  <component id="722f3" class="javax.swing.JComboBox" binding="comboBox2" default-binding="true">
+                  <component id="722f3" class="javax.swing.JComboBox" binding="mMethodComboBox" default-binding="true">
                     <constraints>
                       <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
                     </constraints>
@@ -80,7 +80,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="daa94" class="javax.swing.JComboBox" binding="textField2" default-binding="true">
+                      <component id="daa94" class="javax.swing.JComboBox" binding="mContentTypeComboBox" default-binding="true">
                         <constraints>
                           <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                             <preferred-size width="150" height="-1"/>
@@ -121,7 +121,7 @@
                         <properties/>
                         <border type="none"/>
                         <children>
-                          <component id="bfa0" class="javax.swing.JTable" binding="table2" default-binding="true">
+                          <component id="bfa0" class="javax.swing.JTable" binding="mHeadersTable" default-binding="true">
                             <constraints/>
                             <properties>
                               <preferredScrollableViewportSize width="450" height="80"/>
@@ -139,7 +139,7 @@
                           <text value="Accept Content-Type"/>
                         </properties>
                       </component>
-                      <component id="4d71e" class="javax.swing.JComboBox" binding="textField3" default-binding="true">
+                      <component id="4d71e" class="javax.swing.JComboBox" binding="mAcceptComboBox" default-binding="true">
                         <constraints>
                           <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                             <preferred-size width="150" height="-1"/>
@@ -184,7 +184,7 @@
                           <text value="Content-Type"/>
                         </properties>
                       </component>
-                      <component id="27707" class="javax.swing.JComboBox" binding="comboBox3" default-binding="true">
+                      <component id="27707" class="javax.swing.JComboBox" binding="mUserAgentComboBox" default-binding="true">
                         <constraints>
                           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                           <gridbag weightx="0.0" weighty="0.0"/>
@@ -220,7 +220,7 @@
                     <properties/>
                     <border type="none"/>
                     <children>
-                      <component id="a2455" class="javax.swing.JTable" binding="table1" default-binding="true">
+                      <component id="a2455" class="javax.swing.JTable" binding="mQuerysTable" default-binding="true">
                         <constraints/>
                         <properties>
                           <autoCreateRowSorter value="true"/>
@@ -274,7 +274,7 @@
                       <font size="10"/>
                     </border>
                     <children>
-                      <component id="6eb9b" class="javax.swing.JButton" binding="addButton" default-binding="true">
+                      <component id="6eb9b" class="javax.swing.JButton" binding="mAddButton" default-binding="true">
                         <constraints>
                           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
@@ -284,7 +284,7 @@
                           <text value="+"/>
                         </properties>
                       </component>
-                      <component id="b8e77" class="javax.swing.JButton" binding="removeButton1" default-binding="true">
+                      <component id="b8e77" class="javax.swing.JButton" binding="mRemoveButton" default-binding="true">
                         <constraints>
                           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
                         </constraints>
@@ -309,7 +309,7 @@
                       <font size="10"/>
                     </border>
                     <children>
-                      <component id="648" class="org.fife.ui.rsyntaxtextarea.RSyntaxTextArea" binding="RSyntaxTextArea1" default-binding="true">
+                      <component id="648" class="org.fife.ui.rsyntaxtextarea.RSyntaxTextArea" binding="mRequestBodyRSyntaxTextArea" default-binding="true">
                         <constraints/>
                         <properties>
                           <codeFoldingEnabled value="true"/>
@@ -350,7 +350,7 @@
                           <text value="Password"/>
                         </properties>
                       </component>
-                      <component id="9761b" class="javax.swing.JTextField" binding="textField4" default-binding="true">
+                      <component id="9761b" class="javax.swing.JTextField" binding="mBasicAuthUserNameTextField" default-binding="true">
                         <constraints>
                           <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                             <preferred-size width="150" height="-1"/>
@@ -359,7 +359,7 @@
                         </constraints>
                         <properties/>
                       </component>
-                      <component id="1b3c8" class="javax.swing.JPasswordField" binding="textField5" default-binding="true">
+                      <component id="1b3c8" class="javax.swing.JPasswordField" binding="mBasicAuthPwdPasswordField" default-binding="true">
                         <constraints>
                           <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
                             <preferred-size width="150" height="-1"/>
@@ -412,7 +412,7 @@
                         </properties>
                         <border type="none"/>
                         <children>
-                          <component id="ca440" class="org.fife.ui.rsyntaxtextarea.RSyntaxTextArea" binding="text2">
+                          <component id="ca440" class="org.fife.ui.rsyntaxtextarea.RSyntaxTextArea" binding="mResponseBodyTextArea">
                             <constraints/>
                             <properties>
                               <codeFoldingEnabled value="true"/>
@@ -444,7 +444,7 @@
                         <properties/>
                         <border type="none"/>
                         <children>
-                          <component id="12cda" class="javax.swing.JTextArea" binding="textArea1" default-binding="true">
+                          <component id="12cda" class="javax.swing.JTextArea" binding="mResponseHeadersTextArea" default-binding="true">
                             <constraints/>
                             <properties>
                               <background color="-13750222"/>
@@ -471,7 +471,7 @@
                         <properties/>
                         <border type="none"/>
                         <children>
-                          <component id="fa5d0" class="javax.swing.JTextArea" binding="textArea2" default-binding="true">
+                          <component id="fa5d0" class="javax.swing.JTextArea" binding="mLogTextArea" default-binding="true">
                             <constraints/>
                             <properties>
                               <background color="-13750222"/>
@@ -490,7 +490,7 @@
           </grid>
         </children>
       </tabbedpane>
-      <component id="b21ac" class="javax.swing.JButton" binding="importButton" default-binding="true">
+      <component id="b21ac" class="javax.swing.JButton" binding="mImportButton" default-binding="true">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

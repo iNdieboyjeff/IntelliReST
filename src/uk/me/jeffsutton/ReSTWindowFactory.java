@@ -15,7 +15,8 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import com.intellij.util.containers.HashMap;
-import com.squareup.okhttp.*;
+import okhttp3.*;
+import okhttp3.logging.HttpLoggingInterceptor;
 import okio.Buffer;
 import okio.BufferedSink;
 import okio.BufferedSource;
@@ -45,11 +46,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.Charset;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.LinkedHashMap;
@@ -60,38 +57,38 @@ import java.util.Map;
  * Created by jeff on 16/12/2015.
  */
 public class ReSTWindowFactory implements ToolWindowFactory {
-
-    private JComboBox comboBox1;
+    private JComboBox mSchemeComboBox;
     private JPanel rootContent;
-    private JTextField textField1;
-    private JComboBox comboBox2;
-    private JTable table1;
+    private JTextField mUrlTextField;
+    private JComboBox mMethodComboBox;
+    private JTable mQuerysTable;
     private JButton button1;
     private JButton removeButton;
-    private JComboBox textField2;
-    private JComboBox textField3;
-    private JTable table2;
-    private JButton removeButton1;
-    private JButton addButton;
-    private JButton SUBMITButton;
+    private JComboBox mContentTypeComboBox;
+    private JComboBox mAcceptComboBox;
+    private JTable mHeadersTable;
+    private JButton mRemoveButton;
+    private JButton mAddButton;
+    private JButton mSubmitButton;
     private JTabbedPane tabbedPane1;
-    private JTextArea textArea1;
-    private JTabbedPane mainTabs;
+    private JTextArea mResponseHeadersTextArea;
+    private JTabbedPane mMainTabs;
     private RTextScrollPane RTextScrollPane1;
-    private RSyntaxTextArea RSyntaxTextArea1;
+    private RSyntaxTextArea mRequestBodyRSyntaxTextArea;
     private RTextScrollPane scroll2;
-    private RSyntaxTextArea text2;
-    private JTextArea textArea2;
-    private JComboBox comboBox3;
-    private JButton importButton;
-    private JTextField textField4;
-    private JPasswordField textField5;
+    private RSyntaxTextArea mResponseBodyTextArea;
+    private JTextArea mLogTextArea;
+    private JComboBox mUserAgentComboBox;
+    private JButton mImportButton;
+    private JTextField mBasicAuthUserNameTextField;
+    private JPasswordField mBasicAuthPwdPasswordField;
     private JButton commonButton;
     private ToolWindow myToolWindow;
-    private Project project;
+
+    private String mConfigFilePath;
 
     public ReSTWindowFactory() {
-        SUBMITButton.addActionListener(new ActionListener() {
+        mSubmitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 submitRequest();
@@ -100,46 +97,46 @@ public class ReSTWindowFactory implements ToolWindowFactory {
         button1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((DefaultTableModel) table1.getModel()).addRow(new String[]{null, null});
+                ((DefaultTableModel) mQuerysTable.getModel()).addRow(new String[]{null, null});
             }
         });
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int row = table1.getSelectedRow();
+                int row = mQuerysTable.getSelectedRow();
                 if (row == -1) {
-                    row = table1.getRowCount() - 1;
+                    row = mQuerysTable.getRowCount() - 1;
                 }
                 if (row > -1) {
-                    ((DefaultTableModel) table1.getModel()).removeRow(row);
+                    ((DefaultTableModel) mQuerysTable.getModel()).removeRow(row);
                 }
             }
         });
-        addButton.addActionListener(new ActionListener() {
+        mAddButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((DefaultTableModel) table2.getModel()).addRow(new String[]{null, null});
+                ((DefaultTableModel) mHeadersTable.getModel()).addRow(new String[]{null, null});
             }
         });
-        removeButton1.addActionListener(new ActionListener() {
+        mRemoveButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                int row = table2.getSelectedRow();
+                int row = mHeadersTable.getSelectedRow();
                 if (row == -1) {
-                    row = table2.getRowCount() - 1;
+                    row = mHeadersTable.getRowCount() - 1;
                 }
                 if (row > -1) {
-                    ((DefaultTableModel) table2.getModel()).removeRow(row);
+                    ((DefaultTableModel) mHeadersTable.getModel()).removeRow(row);
                 }
             }
         });
-        textField2.addActionListener(new ActionListener() {
+        mContentTypeComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                RSyntaxTextArea1.setSyntaxEditingStyle(textField2.getSelectedItem().toString().split(";")[0]);
+                mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(mContentTypeComboBox.getSelectedItem().toString().split(";")[0]);
             }
         });
-        importButton.addActionListener(new ActionListener() {
+        mImportButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 importRequest();
@@ -169,11 +166,11 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                 return virtualFile != null && virtualFile.getExtension() != null && (virtualFile.getExtension().equalsIgnoreCase("xml") || virtualFile.getExtension().equalsIgnoreCase("json") );
             }
         });
-        VirtualFile VirtualFile = FileChooser.chooseFile(Descriptor, project, null);
-        if (VirtualFile != null) {
+        VirtualFile importFile = FileChooser.chooseFile(Descriptor, null, null);
+        if (importFile != null) {
             Serializer serializer = new Persister();
             try {
-                CharlesSession session = serializer.read(CharlesSession.class, new File(VirtualFile.getCanonicalPath()));
+                CharlesSession session = serializer.read(CharlesSession.class, new File(importFile.getCanonicalPath()));
 
                 if (session == null || session.getTransaction() == null || session.getTransaction().size() == 0) {
                     // We have no requests to load. Show an error
@@ -190,9 +187,9 @@ public class ReSTWindowFactory implements ToolWindowFactory {
 
                 if (t != null) {
 
-                    comboBox1.setSelectedItem(t.getProtocol().toUpperCase());
-                    textField1.setText(t.getHost() + t.getPath());
-                    comboBox2.setSelectedItem(t.getMethod().toUpperCase());
+                    mSchemeComboBox.setSelectedItem(t.getProtocol().toUpperCase());
+                    mUrlTextField.setText(t.getHost() + t.getPath());
+                    mMethodComboBox.setSelectedItem(t.getMethod().toUpperCase());
 
                     if (t.getRequest().getBody() != null && t.getRequest().getBody().getValue() != null) {
                         try {
@@ -207,11 +204,11 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                             transformer.transform(xmlInput, xmlOutput);
                             String s = xmlOutput.getWriter().toString();
 
-                            RSyntaxTextArea1.setAutoIndentEnabled(true);
-                            RSyntaxTextArea1.setCloseCurlyBraces(true);
-                            RSyntaxTextArea1.setCloseMarkupTags(true);
-                            RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
-                            RSyntaxTextArea1.setText(s);
+                            mRequestBodyRSyntaxTextArea.setAutoIndentEnabled(true);
+                            mRequestBodyRSyntaxTextArea.setCloseCurlyBraces(true);
+                            mRequestBodyRSyntaxTextArea.setCloseMarkupTags(true);
+                            mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+                            mRequestBodyRSyntaxTextArea.setText(s);
                         } catch (Exception err) {
                             try {
                                 JsonParser parser = new JsonParser();
@@ -220,22 +217,23 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                                 Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
                                 String s = gson.toJson(el);
 
-                                RSyntaxTextArea1.setAutoIndentEnabled(true);
-                                RSyntaxTextArea1.setCloseCurlyBraces(true);
-                                RSyntaxTextArea1.setCloseMarkupTags(true);
-                                RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
-                                RSyntaxTextArea1.setText(s);
+                                mRequestBodyRSyntaxTextArea.setAutoIndentEnabled(true);
+                                mRequestBodyRSyntaxTextArea.setCloseCurlyBraces(true);
+                                mRequestBodyRSyntaxTextArea.setCloseMarkupTags(true);
+                                mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                mRequestBodyRSyntaxTextArea.setText(s);
                             } catch (Exception err2) {
-                                err2.printStackTrace();RSyntaxTextArea1.setAutoIndentEnabled(true);
-                                RSyntaxTextArea1.setCloseCurlyBraces(true);
-                                RSyntaxTextArea1.setCloseMarkupTags(true);
-                                RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
+                                err2.printStackTrace();
+                                mRequestBodyRSyntaxTextArea.setAutoIndentEnabled(true);
+                                mRequestBodyRSyntaxTextArea.setCloseCurlyBraces(true);
+                                mRequestBodyRSyntaxTextArea.setCloseMarkupTags(true);
+                                mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
 
-                                RSyntaxTextArea1.setText(t.getRequest().getBody().getValue());
+                                mRequestBodyRSyntaxTextArea.setText(t.getRequest().getBody().getValue());
                             }
                         }
                     } else {
-                        RSyntaxTextArea1.setText(null);
+                        mRequestBodyRSyntaxTextArea.setText(null);
                     }
 
                     URIBuilder b = new URIBuilder();
@@ -245,34 +243,34 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                     b.setCustomQuery(t.getQuery());
                     String column_names[] = {"Key", "Value"};
                     DefaultTableModel table_model = new DefaultTableModel(column_names, 0);
-                    table1.setModel(table_model);
-                    table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    mQuerysTable.setModel(table_model);
+                    mQuerysTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     try {
                         Map<String,String> q = splitQuery(b.build().toURL());
                         for (Map.Entry<String, String> e : q.entrySet()) {
-                            ((DefaultTableModel) table1.getModel()).addRow(new String[] {e.getKey(),e.getValue()});
+                            ((DefaultTableModel) mQuerysTable.getModel()).addRow(new String[] {e.getKey(),e.getValue()});
                         }
-                    } catch (UnsupportedEncodingException e) {
-                    } catch (MalformedURLException e) {
+                    } catch (UnsupportedEncodingException | MalformedURLException e) {
+                        e.printStackTrace();
                     }
                      column_names = new String[] {"Key", "Value"};
                      table_model = new DefaultTableModel(column_names, 0);
-                    table2.setModel(table_model);
-                    table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    mHeadersTable.setModel(table_model);
+                    mHeadersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
                     if (t.getRequest().getHeaders() != null && t.getRequest().getHeaders().size() > 0) {
                         for (Header e : t.getRequest().getHeaders()) {
                             try {
                                 if (e.getName().equalsIgnoreCase("User-Agent")) {
-                                    comboBox3.setSelectedItem(e.getValue());
+                                    mUserAgentComboBox.setSelectedItem(e.getValue());
                                 } else if (e.getName().equalsIgnoreCase("Content-Type")) {
-                                    textField2.setSelectedItem(e.getValue());
+                                    mContentTypeComboBox.setSelectedItem(e.getValue());
                                     if (e.getValue().endsWith("/json"))
-                                        RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                        mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
                                 } else if (e.getName().equalsIgnoreCase("Accept")) {
-                                    textField3.setSelectedItem(e.getValue());
+                                    mAcceptComboBox.setSelectedItem(e.getValue());
                                 } else {
-                                    ((DefaultTableModel) table2.getModel()).addRow(new String[]{e.getName(), e.getValue()});
+                                    ((DefaultTableModel) mHeadersTable.getModel()).addRow(new String[]{e.getName(), e.getValue()});
                                 }
                             } catch (Exception eee) {}
                         }
@@ -283,10 +281,9 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                 e.printStackTrace();
             }
 
-
             try {
                 Gson gson = new Gson();
-                DHC d = gson.fromJson(new FileReader(new File(VirtualFile.getCanonicalPath())), DHC.class);
+                DHC d = gson.fromJson(new FileReader(new File(importFile.getCanonicalPath())), DHC.class);
                 List<Node> nodes = d.getRequestNodes();
                 Node n = null;
                 if (nodes != null ) {
@@ -297,49 +294,51 @@ public class ReSTWindowFactory implements ToolWindowFactory {
                     }
                 }
                 if (n != null) {
-                    comboBox1.setSelectedItem(n.getUri().getScheme().getName().toUpperCase());
-                    textField1.setText(n.getUri().getPath());
-                    comboBox2.setSelectedItem(n.getMethod().getName().toUpperCase());
+                    mSchemeComboBox.setSelectedItem(n.getUri().getScheme().getName().toUpperCase());
+                    mUrlTextField.setText(n.getUri().getPath());
+                    mMethodComboBox.setSelectedItem(n.getMethod().getName().toUpperCase());
 
                     String[] column_names = new String[] {"Key", "Value"};
                     DefaultTableModel table_model = new DefaultTableModel(column_names, 0);
-                    table2.setModel(table_model);
-                    table2.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    mHeadersTable.setModel(table_model);
+                    mHeadersTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
                     if (n.getHeaders() != null && n.getHeaders().size() > 0) {
                         for (uk.me.jeffsutton.json.dhc.Header e : n.getHeaders()) {
                             try {
                                 if (e.getName().equalsIgnoreCase("User-Agent")) {
-                                    comboBox3.setSelectedItem(e.getValue());
+                                    mUserAgentComboBox.setSelectedItem(e.getValue());
                                 } else if (e.getName().equalsIgnoreCase("Content-Type")) {
-                                    textField2.setSelectedItem(e.getValue());
+                                    mContentTypeComboBox.setSelectedItem(e.getValue());
                                     if (e.getValue().endsWith("/json"))
-                                        RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                        mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
                                 } else if (e.getName().equalsIgnoreCase("Accept")) {
-                                    textField3.setSelectedItem(e.getValue());
+                                    mAcceptComboBox.setSelectedItem(e.getValue());
                                 } else {
-                                    ((DefaultTableModel) table2.getModel()).addRow(new String[]{e.getName(), e.getValue()});
+                                    ((DefaultTableModel) mHeadersTable.getModel()).addRow(new String[]{e.getName(), e.getValue()});
                                 }
-                            } catch (Exception eee) {}
+                            } catch (Exception eee) {
+                                eee.printStackTrace();
+                            }
                         }
                     }
                     column_names = new String[] {"Key", "Value"};
                      table_model = new DefaultTableModel(column_names, 0);
-                    table1.setModel(table_model);
-                    table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    mQuerysTable.setModel(table_model);
+                    mQuerysTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     if (n.getUri() != null && n.getUri().query != null && n.getUri().query.getItems() != null) {
                         try {
                             for (uk.me.jeffsutton.json.dhc.Header e : n.getUri().query.getItems()) {
-                                ((DefaultTableModel) table1.getModel()).addRow(new String[]{e.getName(), e.getValue()});
+                                ((DefaultTableModel) mQuerysTable.getModel()).addRow(new String[]{e.getName(), e.getValue()});
                             }
                         } catch (Exception e) {
                         }
                     }
 
                     if (n.getBody() != null) {
-                        RSyntaxTextArea1.setText(n.getBody().getTextBody());
+                        mRequestBodyRSyntaxTextArea.setText(n.getBody().getTextBody());
                     } else {
-                        RSyntaxTextArea1.setText(null);
+                        mRequestBodyRSyntaxTextArea.setText(null);
                     }
                 }
             } catch (Exception e) {
@@ -351,37 +350,37 @@ public class ReSTWindowFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        mConfigFilePath = project.getWorkspaceFile().getParent().getCanonicalPath();
         myToolWindow = toolWindow;
-        this.project = project;
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(rootContent, "", false);
         toolWindow.getContentManager().addContent(content);
 
         String column_names[] = {"Key", "Value"};
         DefaultTableModel table_model = new DefaultTableModel(column_names, 0);
-        table1.setModel(table_model);
-        table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        mQuerysTable.setModel(table_model);
+        mQuerysTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
         DefaultTableModel table_model2 = new DefaultTableModel(column_names, 0);
-        table2.setModel(table_model2);
+        mHeadersTable.setModel(table_model2);
 
-        RTextScrollPane1.setViewportView(RSyntaxTextArea1);
-        RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+        RTextScrollPane1.setViewportView(mRequestBodyRSyntaxTextArea);
+        mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         RTextScrollPane1.setLineNumbersEnabled(true);
         RTextScrollPane1.setFoldIndicatorEnabled(true);
-        RSyntaxTextArea1.setCloseCurlyBraces(true);
-        RSyntaxTextArea1.setCloseMarkupTags(true);
-        RSyntaxTextArea1.setCloseMarkupTags(true);
+        mRequestBodyRSyntaxTextArea.setCloseCurlyBraces(true);
+        mRequestBodyRSyntaxTextArea.setCloseMarkupTags(true);
+        mRequestBodyRSyntaxTextArea.setCloseMarkupTags(true);
 
-        scroll2.setViewportView(text2);
-        text2.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+        scroll2.setViewportView(mResponseBodyTextArea);
+        mResponseBodyTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
         scroll2.setLineNumbersEnabled(true);
         scroll2.setFoldIndicatorEnabled(true);
-        text2.setCloseCurlyBraces(true);
-        text2.setCloseMarkupTags(true);
-        text2.setCloseMarkupTags(true);
+        mResponseBodyTextArea.setCloseCurlyBraces(true);
+        mResponseBodyTextArea.setCloseMarkupTags(true);
+        mResponseBodyTextArea.setCloseMarkupTags(true);
 
-        File f = new File(project.getWorkspaceFile().getParent().getCanonicalPath(), "restRequest.json");
+        File f = new File(mConfigFilePath, "restRequest.json");
         if (f.exists()) {
             byte[] b = new byte[0];
             try {
@@ -394,44 +393,43 @@ public class ReSTWindowFactory implements ToolWindowFactory {
             XRequest req = gson.fromJson(s, XRequest.class);
 
             if (req != null) {
-                comboBox1.setSelectedItem(req.uri.getScheme().toUpperCase());
-                textField1.setText(req.uri.getHost() + req.uri.getPath());
-                comboBox2.setSelectedItem(req.method.toUpperCase());
-                RSyntaxTextArea1.setText(req.body);
+                mSchemeComboBox.setSelectedItem(req.uri.getScheme().toUpperCase());
+                mUrlTextField.setText(req.uri.getHost() + req.uri.getPath());
+                mMethodComboBox.setSelectedItem(req.method.toUpperCase());
+                mRequestBodyRSyntaxTextArea.setText(req.body);
                 try {
                     Map<String,String> q = splitQuery(req.uri.toURL());
                     for (Map.Entry<String, String> e : q.entrySet()) {
-                        ((DefaultTableModel) table1.getModel()).addRow(new String[] {e.getKey(),e.getValue()});
+                        ((DefaultTableModel) mQuerysTable.getModel()).addRow(new String[] {e.getKey(),e.getValue()});
                     }
-                } catch (UnsupportedEncodingException e) {
-                } catch (MalformedURLException e) {
+                } catch (UnsupportedEncodingException | MalformedURLException e) {
+                    e.printStackTrace();
                 }
                 if (req.headers != null && req.headers.size() > 0) {
                     for (Map.Entry<String, String> e : req.headers.entrySet()) {
                         if (e.getKey().equalsIgnoreCase("User-Agent")) {
-                            comboBox3.setSelectedItem(e.getValue());
+                            mUserAgentComboBox.setSelectedItem(e.getValue());
                         } else if (e.getKey().equalsIgnoreCase("Content-Type")) {
-                            textField2.setSelectedItem(e.getValue());
+                            mContentTypeComboBox.setSelectedItem(e.getValue());
                             if (e.getValue().endsWith("/json"))
-                                RSyntaxTextArea1.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                                mRequestBodyRSyntaxTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
                         } else if (e.getKey().equalsIgnoreCase("Accept")) {
-                            textField3.setSelectedItem(e.getValue());
+                            mAcceptComboBox.setSelectedItem(e.getValue());
                         } else {
-                            ((DefaultTableModel) table2.getModel()).addRow(new String[]{e.getKey(), e.getValue()});
+                            ((DefaultTableModel) mHeadersTable.getModel()).addRow(new String[]{e.getKey(), e.getValue()});
                         }
                     }
                 }
             }
         }
-
     }
 
-    public static Map<String, String> splitQuery(URL url) throws UnsupportedEncodingException {
+    private Map<String, String> splitQuery(URL url) throws UnsupportedEncodingException {
         Map<String, String> query_pairs = new LinkedHashMap<String, String>();
         String query = url.getQuery();
         if (query != null && !query.equalsIgnoreCase("")) {
             String[] pairs = query.split("&");
-            if (pairs != null && pairs.length > 0)
+            if (pairs.length > 0)
             for (String pair : pairs) {
                 int idx = pair.indexOf("=");
                 query_pairs.put(URLDecoder.decode(pair.substring(0, idx), "UTF-8"), URLDecoder.decode(pair.substring(idx + 1), "UTF-8"));
@@ -440,87 +438,116 @@ public class ReSTWindowFactory implements ToolWindowFactory {
         return query_pairs;
     }
 
+    private OkHttpClient getHttpClient() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+            @Override
+            public void log(String s) {
+                mLogTextArea.append(s + "\n");
+            }
+        });
+        // set your desired log level
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
+        builder.interceptors().add(logging);
+
+        return builder.build();
+    }
+
+    private HttpUrl getUrl() {
+        HttpUrl.Builder builder = new HttpUrl.Builder();
+        builder.scheme(mSchemeComboBox.getSelectedItem().toString().toLowerCase());
+
+        String[] str = mUrlTextField.getText().split("/", 1);
+        builder.host(str[0]);
+
+        if (str.length > 1) {
+            builder.addPathSegment(str[1]);
+        }
+
+        for (int i = 0; i < mQuerysTable.getRowCount(); i++) {
+            try {
+                builder.setQueryParameter(mQuerysTable.getValueAt(i, 0).toString(),
+                        mQuerysTable.getValueAt(i, 1).toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.build();
+    }
+
+    private Request getRequest() throws URISyntaxException, MalformedURLException {
+        Request.Builder builder = new Request.Builder();
+        builder.url(getUrl());
+
+        RequestBody body = null;
+        String method = mMethodComboBox.getSelectedItem().toString();
+        if (!method.equalsIgnoreCase("GET")) {
+            body = new RequestBody() {
+                @Override
+                public MediaType contentType() {
+                    return MediaType.parse(mContentTypeComboBox.getSelectedItem().toString());
+                }
+
+                @Override
+                public long contentLength() throws IOException {
+                    return mRequestBodyRSyntaxTextArea.getText().getBytes().length;
+                }
+
+                @Override
+                public void writeTo(BufferedSink sink) throws IOException {
+                    sink.write(ByteString.encodeUtf8(mRequestBodyRSyntaxTextArea.getText()));
+                }
+            };
+        }
+        builder.method(method, body);
+
+        String contentType = mContentTypeComboBox.getSelectedItem().toString();
+        if (null != contentType && contentType.length() > 0) {
+            builder.addHeader("Content-Type", contentType);
+        }
+        String accept = mAcceptComboBox.getSelectedItem().toString();
+        if (null != accept && accept.length() > 0) {
+            builder.addHeader("Accept", accept);
+        }
+        String userAgent = mUserAgentComboBox.getSelectedItem().toString();
+        if (null != userAgent && userAgent.length() > 0) {
+            builder.addHeader("User-Agent", userAgent);
+        }
+        String basicAuthUserName = mBasicAuthUserNameTextField.getText();
+        String basicAuthPwd = String.valueOf(mBasicAuthPwdPasswordField.getPassword());
+        if (null != basicAuthUserName && basicAuthUserName.length() > 0) {
+            String basicAuth = Credentials.basic(basicAuthUserName, basicAuthPwd);
+            builder.addHeader("Authorization", basicAuth);
+        }
+        for (int i = 0; i < mHeadersTable.getRowCount(); i++) {
+            try {
+                builder.addHeader(mHeadersTable.getValueAt(i, 0).toString(),
+                        mHeadersTable.getValueAt(i, 1).toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return builder.build();
+    }
+
     private void submitRequest() {
-        OkHttpClient client = new OkHttpClient();
+        OkHttpClient client = getHttpClient();
 
         XRequest request = new XRequest();
 
-        URIBuilder builder = new URIBuilder();
-        builder.setScheme(comboBox1.getSelectedItem().toString().toLowerCase());
-
-        String[] str = textField1.getText().split("/", 1);
-        builder.setHost(str[0]);
-
-        if (str.length > 1)
-            builder.setPath(str[1]);
-
-        for (int i = 0; i < table1.getRowCount(); i++) {
-            try {
-                builder.addParameter(table1.getValueAt(i, 0).toString(), table1.getValueAt(i, 1).toString());
-            } catch (Exception e) {
-            }
-        }
-
         try {
-            URI uri = builder.build();
+            URI uri = getUrl().uri();
             System.out.println("Request to: " + uri.toString());
             request.uri = uri;
-            RequestBody body = null;
+            request.method = mMethodComboBox.getSelectedItem().toString();
+            request.body = mRequestBodyRSyntaxTextArea.getText();
 
-            if (comboBox2.getSelectedItem().toString().equalsIgnoreCase("POST")) {
-                body = new RequestBody() {
-                    @Override
-                    public MediaType contentType() {
-                        return MediaType.parse(textField2.getSelectedItem().toString());
-                    }
-
-                    @Override
-                    public long contentLength() throws IOException {
-                        return RSyntaxTextArea1.getText().getBytes().length;
-                    }
-
-                    @Override
-                    public void writeTo(BufferedSink sink) throws IOException {
-                        sink.write(ByteString.encodeUtf8(RSyntaxTextArea1.getText()));
-                    }
-                };
-            }
-
-
-            Request.Builder rb = new Request.Builder().url(uri.toString()).method(comboBox2.getSelectedItem().toString(), body);
-            request.method = comboBox2.getSelectedItem().toString();
-            request.body = RSyntaxTextArea1.getText();
-
-            if (textField2.getSelectedItem().toString() != null && !textField2.getSelectedItem().toString().equalsIgnoreCase("")) {
-                rb.addHeader("Content-Type", textField2.getSelectedItem().toString());
-            }
-
-            if (textField3.getSelectedItem().toString() != null && !textField3.getSelectedItem().toString().equalsIgnoreCase("")) {
-                rb.addHeader("Accept", textField3.getSelectedItem().toString());
-            }
-
-            if (comboBox3.getSelectedItem().toString() != null && !comboBox3.getSelectedItem().toString().equalsIgnoreCase("")) {
-                rb.addHeader("User-Agent", comboBox3.getSelectedItem().toString());
-            }
-
-            for (int i = 0; i < table2.getRowCount(); i++) {
-                try {
-                    rb.addHeader(table2.getValueAt(i, 0).toString(), table2.getValueAt(i, 1).toString());
-                } catch (Exception e) {
-                }
-            }
-
-            if (textField4.getText() != null && !textField4.getText().equalsIgnoreCase("") &&
-                    textField5.getPassword() != null && !new String(textField5.getPassword()).equalsIgnoreCase("")) {
-                String credentals = Credentials.basic(textField4.getText(), new String(textField5.getPassword()));
-                rb.addHeader("Authorization", credentals);
-            }
-
-            Request rest_request = rb.build();
+            Request rest_request = getRequest();
 
             HashMap<String, String> saveHeaders = new HashMap<>();
 
-            Headers requestHeaders = rest_request.headers();
+            final Headers requestHeaders = rest_request.headers();
             for (int i = 0; i < requestHeaders.size(); i++) {
                 System.out.println(requestHeaders.name(i) + ": " + requestHeaders.value(i));
                 saveHeaders.put(requestHeaders.name(i), requestHeaders.value(i));
@@ -530,7 +557,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
 
             Gson gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
             String saveText = gson.toJson(request, XRequest.class);
-            File f = new File(project.getWorkspaceFile().getParent().getCanonicalPath(), "restRequest.json");
+            File f = new File(mConfigFilePath, "restRequest.json");
             System.out.println("Saving to " + f.getAbsolutePath());
             System.out.println(saveText);
             if (!f.exists()) {
@@ -540,145 +567,137 @@ public class ReSTWindowFactory implements ToolWindowFactory {
             out.write(saveText);
             out.close();
             if (f.exists()) {
+
                 VirtualFile virtualFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(f);
                 if (virtualFile != null) {
                     virtualFile.refresh(false, true);
                 }
             }
 
-
             System.out.println("--------------------------------------------------------------\n\n");
-            textArea1.setText("");
-            textArea2.setText("");
-            text2.setText("");
-            client.interceptors().add(new OKHttpLoggingInterceptor(textArea2));
-            client.newCall(rest_request).enqueue(new Callback() {
-                                                @Override
-                                                public void onFailure(Request request, IOException e) {
-                                                    System.out.println("Error in request");
-                                                }
+            mResponseHeadersTextArea.setText("");
+            mLogTextArea.setText("");
+            mResponseBodyTextArea.setText("");
 
-                                                @Override
-                                                public void onResponse(Response response) throws IOException {
-                                                    Headers responseHeaders = response.headers();
+            Call call = client.newCall(rest_request);
+            call.enqueue(new Callback() {
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    System.out.println("Error in request");
+                }
 
-                                                    try {
-                                                        SwingUtilities.invokeAndWait(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                for (int i = 0; i < responseHeaders.size(); i++) {
-                                                                    System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                                                                    textArea1.append(responseHeaders.name(i) + ": " + responseHeaders.value(i) + "\n");
-                                                                }
-                                                            }
-                                                        });
-                                                    } catch (InterruptedException e) {
-                                                        e.printStackTrace();
-                                                    } catch (InvocationTargetException e) {
-                                                        e.printStackTrace();
-                                                    }
+                @Override
+                public void onResponse(Call call, final Response response) throws IOException {
+                    showResponseHeaders(response.headers());
+                    String method = mMethodComboBox.getSelectedItem().toString();
+                    ResponseBody body = response.body();
+                    if (!method.equalsIgnoreCase("HEAD") && body != null) {
+                        showResponseBody(body);
+                    }
 
-
-                                                    if (!comboBox2.getSelectedItem().toString().equalsIgnoreCase("HEAD") && response.body() != null) {
-                                                        System.out.println("Content-Type: " + response.body().contentType() + " :: " + response.body().contentType().type());
-                                                        try {
-
-                                                            SwingUtilities.invokeAndWait(new Runnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    for (int i = 0; i < responseHeaders.size(); i++) {
-                                                                        text2.setSyntaxEditingStyle(response.body().contentType().type() + "/" + response.body().contentType().subtype());
-
-                                                                        ResponseBody responseBody = response.body();
-
-                                                                        BufferedSource source = null;
-                                                                        try {
-                                                                            source = responseBody.source();
-                                                                        } catch (IOException e) {
-                                                                            e.printStackTrace();
-                                                                        }
-                                                                        try {
-                                                                            source.request(Long.MAX_VALUE); // Buffer the entire body.
-                                                                        } catch (IOException e) {
-                                                                            e.printStackTrace();
-                                                                        }
-                                                                        Buffer buffer = source.buffer();
-
-                                                                        Charset charset = OKHttpLoggingInterceptor.UTF8;
-                                                                        MediaType contentType = responseBody.contentType();
-                                                                        if (contentType != null) {
-                                                                            charset = contentType.charset(OKHttpLoggingInterceptor.UTF8);
-                                                                        }
-
-                                                                        String s = buffer.clone().readString(charset);
-
-                                                                        try {
-
-                                                                            text2.setText((s));
-
-                                                                            if (response.body().contentType().subtype().equalsIgnoreCase("json")) {
-                                                                                JsonParser parser = new JsonParser();
-                                                                                JsonElement el = parser.parse(s);
-
-                                                                                Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
-                                                                                s = gson.toJson(el);
-                                                                                text2.setText((s));
-                                                                                text2.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
-                                                                            } else if (response.body().contentType().subtype().equalsIgnoreCase("xml") || response.body().contentType().subtype().equalsIgnoreCase("rss+xml") || response.body().contentType().subtype().equalsIgnoreCase("smil")) {
-                                                                                Source xmlInput = new StreamSource(new StringReader(s));
-                                                                                StringWriter stringWriter = new StringWriter();
-                                                                                StreamResult xmlOutput = new StreamResult(stringWriter);
-                                                                                TransformerFactory transformerFactory = TransformerFactory.newInstance();
-                                                                                transformerFactory.setAttribute("indent-number", 4);
-
-                                                                                Transformer transformer = transformerFactory.newTransformer();
-                                                                                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-                                                                                transformer.transform(xmlInput, xmlOutput);
-                                                                                String s2 = xmlOutput.getWriter().toString();
-                                                                                text2.setText((s2));
-                                                                                text2.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
-                                                                            }
-
-
-                                                                        } catch (Exception e) {
-                                                                            e.printStackTrace();
-                                                                        }
-                                                                    }
-                                                                }
-                                                            });
-                                                        } catch (InterruptedException e) {
-                                                            e.printStackTrace();
-                                                        } catch (Exception e) {
-                                                            e.printStackTrace();
-                                                        }
-
-
-                                                        response.body().close();
-                                                    }
-
-                                                    try {
-                                                        SwingUtilities.invokeAndWait(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-                                                                mainTabs.setSelectedIndex(1);
-                                                            }
-                                                        });
-                                                    } catch (InterruptedException e) {
-                                                        e.printStackTrace();
-                                                    } catch (InvocationTargetException e) {
-                                                        e.printStackTrace();
-                                                    }
-
-                                                }
-                                            }
-
-            );
-
-
+                    switchTab(1);
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private void switchTab(final int index) {
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    mMainTabs.setSelectedIndex(index);
+                }
+            });
+        } catch (InterruptedException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
 
+    private void showResponseHeaders(final Headers headers) {
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    for (int i = 0; i < headers.size(); i++) {
+                        System.out.println(headers.name(i) + ": " + headers.value(i));
+                        mResponseHeadersTextArea.append(headers.name(i) + ": " + headers.value(i) + "\n");
+                    }
+                }
+            });
+        } catch (InterruptedException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void showResponseBody(final ResponseBody responseBody) {
+        System.out.println("Content-Type: " + responseBody.contentType() + " :: " + responseBody.contentType().type());
+        try {
+            SwingUtilities.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    MediaType contentType = responseBody.contentType();
+                    String subType = contentType.subtype();
+                    mResponseBodyTextArea.setSyntaxEditingStyle(contentType.toString());
+
+                    BufferedSource source = responseBody.source();
+                    try {
+                        source.request(Long.MAX_VALUE); // Buffer the entire body.
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    Buffer buffer = source.buffer();
+
+                    String s = buffer.clone().readUtf8();
+
+                    try {
+
+                        mResponseBodyTextArea.setText(s);
+
+                        if (subType.equalsIgnoreCase("json")) {
+                            JsonParser parser = new JsonParser();
+                            JsonElement el = parser.parse(s);
+
+                            Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().serializeNulls().create();
+                            s = gson.toJson(el);
+                            mResponseBodyTextArea.setText((s));
+                            mResponseBodyTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JSON);
+                        } else if (subType.equalsIgnoreCase("xml") || subType.equalsIgnoreCase("rss+xml") || subType.equalsIgnoreCase("smil")) {
+                            Source xmlInput = new StreamSource(new StringReader(s));
+                            StringWriter stringWriter = new StringWriter();
+                            StreamResult xmlOutput = new StreamResult(stringWriter);
+                            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                            transformerFactory.setAttribute("indent-number", 4);
+
+                            Transformer transformer = transformerFactory.newTransformer();
+                            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                            transformer.transform(xmlInput, xmlOutput);
+                            String s2 = xmlOutput.getWriter().toString();
+                            mResponseBodyTextArea.setText((s2));
+                            mResponseBodyTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_XML);
+                        } else if (subType.toLowerCase().contains("html")) {
+                            Source xmlInput = new StreamSource(new StringReader(s));
+                            StringWriter stringWriter = new StringWriter();
+                            StreamResult xmlOutput = new StreamResult(stringWriter);
+                            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                            transformerFactory.setAttribute("indent-number", 4);
+
+                            Transformer transformer = transformerFactory.newTransformer();
+                            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                            transformer.transform(xmlInput, xmlOutput);
+                            String s2 = xmlOutput.getWriter().toString();
+                            mResponseBodyTextArea.setText((s2));
+                            mResponseBodyTextArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_HTML);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
