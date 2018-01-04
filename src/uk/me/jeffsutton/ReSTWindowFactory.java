@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
@@ -23,6 +24,9 @@ import okio.ByteString;
 import org.apache.http.client.utils.URIBuilder;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.SyntaxScheme;
+import org.fife.ui.rsyntaxtextarea.Token;
+import org.fife.ui.rtextarea.Gutter;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.jetbrains.annotations.NotNull;
 import org.simpleframework.xml.Serializer;
@@ -35,12 +39,14 @@ import uk.me.jeffsutton.xml.charles.Transaction;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.DefaultEditorKit;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -86,6 +92,7 @@ public class ReSTWindowFactory implements ToolWindowFactory {
     private JButton importButton;
     private JTextField textField4;
     private JPasswordField textField5;
+    private JTable table3;
     private JButton commonButton;
     private ToolWindow myToolWindow;
     private Project project;
@@ -158,6 +165,45 @@ public class ReSTWindowFactory implements ToolWindowFactory {
 //                "http://wap.samsungmobile.com/uaprof/SM-G900A.xml", "http://wap.samsungmobile.com/uaprof/GT-I9305.xml"};
 //            }
 //        });
+
+        Gutter gutter = RTextScrollPane1.getGutter();
+        gutter.setBackground(new Color(47, 47, 47));
+
+        SyntaxScheme scheme = RSyntaxTextArea1.getSyntaxScheme();
+        scheme.getStyle(Token.RESERVED_WORD).background = Color.yellow;
+        scheme.getStyle(Token.RESERVED_WORD_2).background = Color.yellow;
+        scheme.getStyle(Token.DATA_TYPE).foreground = Color.blue;
+        scheme.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = Color.decode("#FFC66D");
+        scheme.getStyle(Token.IDENTIFIER).foreground = Color.decode("#A9B7C6");
+        scheme.getStyle(Token.FUNCTION).foreground = Color.yellow;
+        scheme.getStyle(Token.MARKUP_TAG_NAME).foreground = Color.yellow;
+        scheme.getStyle(Token.SEPARATOR).foreground = Color.decode("#A9B7C6");
+        scheme.getStyle(Token.LITERAL_BOOLEAN).foreground = Color.decode("#CB772F");
+        scheme.getStyle(Token.VARIABLE).foreground = Color.decode("#9876AA");
+        scheme.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = Color.decode("#6897BB");
+        scheme.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = Color.decode("#6897BB");
+        scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).underline = false;
+        scheme.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = Color.decode("#A5C25C");
+
+
+        Gutter gutter2 = scroll2.getGutter();
+        gutter2.setBackground(new Color(47, 47, 47));
+
+        SyntaxScheme scheme2 = text2.getSyntaxScheme();
+        scheme2.getStyle(Token.RESERVED_WORD).background = Color.yellow;
+        scheme2.getStyle(Token.RESERVED_WORD_2).background = Color.yellow;
+        scheme2.getStyle(Token.DATA_TYPE).foreground = Color.blue;
+        scheme2.getStyle(Token.LITERAL_NUMBER_HEXADECIMAL).foreground = Color.decode("#FFC66D");
+        scheme2.getStyle(Token.IDENTIFIER).foreground = Color.decode("#A9B7C6");
+        scheme2.getStyle(Token.FUNCTION).foreground = Color.yellow;
+        scheme2.getStyle(Token.MARKUP_TAG_NAME).foreground = Color.yellow;
+        scheme2.getStyle(Token.SEPARATOR).foreground = Color.decode("#A9B7C6");
+        scheme2.getStyle(Token.LITERAL_BOOLEAN).foreground = Color.decode("#CB772F");
+        scheme2.getStyle(Token.VARIABLE).foreground = Color.decode("#9876AA");
+        scheme2.getStyle(Token.LITERAL_NUMBER_DECIMAL_INT).foreground = Color.decode("#6897BB");
+        scheme2.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = Color.decode("#6897BB");
+        scheme2.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).underline = false;
+        scheme2.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = Color.decode("#A5C25C");
     }
 
     private void importRequest() {
