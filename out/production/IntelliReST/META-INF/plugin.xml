@@ -1,0 +1,43 @@
+<idea-plugin version="2">
+  <id>uk.me.jeffsutton.restconsole</id>
+  <name>ReST Console</name>
+  <version>1.4</version>
+  <vendor email="indieboy1979@gmail.com" >Jeff Sutton</vendor>
+
+  <description><![CDATA[
+      A simple ReST console for IntelliJ.  <br />Create and test network calls using OK HTTP.
+      <br />Supports import of requests in Charles Proxy XML format, and DHC Json format.
+    ]]></description>
+
+  <change-notes><![CDATA[
+
+    1.2
+    Add support for Basic Auth
+
+    1.1.1
+    Change platform targeting
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="141.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+
+  <depends>com.intellij.modules.lang</depends>
+  <depends optional="true">com.intellij.modules.java</depends>
+  <depends optional="true">com.intellij.modules.ultimate</depends>
+  <depends optional="true">com.intellij.modules.androidstudio</depends>
+
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <toolWindow id="ReST Console" anchor="right" factoryClass="uk.me.jeffsutton.ReSTWindowFactory" />
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+</idea-plugin>

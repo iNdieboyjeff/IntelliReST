@@ -1,0 +1,130 @@
+
+bsquid:S3027"FPut single-quotes around '=' to use the faster "indexOf(char)" method.(ÂÎ„È8Í²€àº,
+Tsquid:S1197"8Move the array designator from the variable to the type.(íŞÚƒ8Í²€àº,
+Tsquid:S1197"8Move the array designator from the variable to the type.(íŞÚƒ8Í²€àº,
+Tsquid:S1197"8Move the array designator from the variable to the type.(íŞÚƒ8Í²€àº,
+bsquid:S1192"FDefine a constant instead of duplicating this literal "Value" 6 times.(íŞÚƒ8Í²€àº,
+gsquid:S1192"KDefine a constant instead of duplicating this literal "User-Agent" 4 times.(”¢™ô8Í²€àº,
+isquid:S1192"HDefine a constant instead of duplicating this literal "#6897BB" 4 times.(ƒÎ×Ûúÿÿÿÿ8Í²€àº,
+gsquid:S1192"FDefine a constant instead of duplicating this literal "/json" 3 times.(æ¿¢íùÿÿÿÿ8Í²€àº,
+isquid:S1192"HDefine a constant instead of duplicating this literal "#A9B7C6" 4 times.(à€•öüÿÿÿÿ8Í²€àº,
+hsquid:S1192"GDefine a constant instead of duplicating this literal "Accept" 4 times.(×ÀÕøÿÿÿÿ8Í²€àº,
+isquid:S1192"MDefine a constant instead of duplicating this literal "Content-Type" 4 times.(œÓ³²8Í²€àº,
+Ksquid:S1068"/Remove this unused "tabbedPane1" private field.(ÀĞ™©8Í²€àº,
+Ksquid:S1068"*Remove this unused "table3" private field.(®úùŸûÿÿÿÿ8Í²€àº,
+Ksquid:S1068"0Remove this unused "commonButton" private field.(×¡œ8Í²€àº,
+Lsquid:S1068"0Remove this unused "myToolWindow" private field.(«ç–¿8Í²€àº,
+usquid:S2293"YReplace the type specification in this constructor call with the diamond operator ("<>").(Úâ†€8Í²€àº,
+wsquid:S1450"[Remove the "myToolWindow" field and declare it as a local variable in the relevant methods.(«ç–¿8Í²€àº,
+7squid:S3626"Remove this redundant jump.(ûÁİ…8Í²€àº,
+jsquid:S2095"IUse try-with-resources or close this "PrintWriter" in a "finally" clause.(Ğ¾º¬ùÿÿÿÿ8Í²€àº,
+lsquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(“è˜îûÿÿÿÿ8Í²€àº,
+lsquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(‘„¨Ãùÿÿÿÿ8Í²€àº,
+gsquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(°…¹Î8Í²€àº,
+lsquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.(ÎÕËÒúÿÿÿÿ8Í²€àº,
+lsquid:CommentedOutCodeLine"<This block of commented-out lines of code should be removed.( ôŞûÿÿÿÿ8Í²€àº,
+T
+squid:S106"9Replace this use of System.out or System.err by a logger.(°Î¶Œ8Í²€àº,
+Y
+squid:S106"9Replace this use of System.out or System.err by a logger.(ò›ÿ¸ÿÿÿÿÿ8Í²€àº,
+T
+squid:S106"9Replace this use of System.out or System.err by a logger.(ì¢¼Ò8Í²€àº,
+Y
+squid:S106"9Replace this use of System.out or System.err by a logger.(şüĞÂşÿÿÿÿ8Í²€àº,
+Y
+squid:S106"9Replace this use of System.out or System.err by a logger.(„€Ñ×üÿÿÿÿ8Í²€àº,
+T
+squid:S106"9Replace this use of System.out or System.err by a logger.(¨„ä†8Í²€àº,
+Y
+squid:S106"9Replace this use of System.out or System.err by a logger.(„Í©Ëøÿÿÿÿ8Í²€àº,
+Y
+squid:S106"9Replace this use of System.out or System.err by a logger.(ÔÕ²ıÿÿÿÿ8Í²€àº,
+Y
+squid:S106"9Replace this use of System.out or System.err by a logger.(àÜãóúÿÿÿÿ8Í²€àº,
+Y
+squid:S106"9Replace this use of System.out or System.err by a logger.(ºÅ†’øÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+Vsquid:S1141"5Extract this nested try block into a separate method.(¡»¢üùÿÿÿÿ8Í²€àº,
+nsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 30 to the 15 allowed.(¼Ä¬Ô8Í²€àº,
+tsquid:S3776"SRefactor this method to reduce its Cognitive Complexity from 116 to the 15 allowed.(ÎËªÒûÿÿÿÿ8Í²€àº,
+nsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 36 to the 15 allowed.(ÕúÍ8Í²€àº,
+nsquid:S3776"RRefactor this method to reduce its Cognitive Complexity from 73 to the 15 allowed.(ê©…¥8Í²€àº,
+bsquid:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8Í²€àº,
+bsquid:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8Í²€àº,
+bsquid:S2142"FEither re-interrupt this method or rethrow the "InterruptedException".(ä ¹€8Í²€àº,
+asquid:S2259"EA "NullPointerException" could be thrown; "session" is nullable here.(Òßá»8Í²€àº,
+esquid:S2259"DA "NullPointerException" could be thrown; "source" is nullable here.(ÉÔ³éûÿÿÿÿ8Í²€àº,
+Fsquid:S00108")Either remove or fill this block of code.(²–’Œ8Í²€àº,
+Ksquid:S00108")Either remove or fill this block of code.(ĞĞ¹óúÿÿÿÿ8Í²€àº,
+Fsquid:S00108")Either remove or fill this block of code.(à®¿­8Í²€àº,
+Esquid:S00108")Either remove or fill this block of code.(‰ªÔK8Í²€àº,
+Esquid:S00108")Either remove or fill this block of code.(‰ªÔK8Í²€àº,
+Fsquid:S00108")Either remove or fill this block of code.(”ı¾8Í²€àº,
+Ksquid:S00108")Either remove or fill this block of code.(ĞĞ¹óúÿÿÿÿ8Í²€àº,
+Fsquid:S00108")Either remove or fill this block of code.(à®¿­8Í²€àº,
+Fsquid:S00108")Either remove or fill this block of code.(”ı¾8Í²€àº,
+Fsquid:S00108")Either remove or fill this block of code.(”ı¾8Í²€àº,
+Dsquid:S1604"(Make this anonymous inner class a lambda(†øÈ›8Í²€àº,
+Isquid:S1604"(Make this anonymous inner class a lambda(ÊŞ’ƒıÿÿÿÿ8Í²€àº,
+Isquid:S1604"(Make this anonymous inner class a lambda(˜ä…ğüÿÿÿÿ8Í²€àº,
+Csquid:S1604"(Make this anonymous inner class a lambda(¸îÁe8Í²€àº,
+Isquid:S1604"(Make this anonymous inner class a lambda(¦şÏÁÿÿÿÿÿ8Í²€àº,
+Isquid:S1604"(Make this anonymous inner class a lambda(˜ëâùÿÿÿÿ8Í²€àº,
+Isquid:S1604"(Make this anonymous inner class a lambda(Ö¤÷şÿÿÿÿ8Í²€àº,
+Isquid:S1604"(Make this anonymous inner class a lambda(Ô¶µÿşÿÿÿÿ8Í²€àº,
+Dsquid:S1604"(Make this anonymous inner class a lambda(ÈØ¿»8Í²€àº,
+Dsquid:S1604"(Make this anonymous inner class a lambda(ÈØ¿»8Í²€àº,
+Dsquid:S1604"(Make this anonymous inner class a lambda(ÈØ¿»8Í²€àº,
+squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(¤¼›Î8Í²€àº,
+¢squid:S1186"€Add a nested comment explaining why this method is empty, throw an UnsupportedOperationException or complete the implementation.(Ø¡ı¥ûÿÿÿÿ8Í²€àº,
+asquid:S2147"ECombine this catch with the one at line 263, which has the same body.(ŸäÁ‚8Í²€àº,
+asquid:S2147"ECombine this catch with the one at line 374, which has the same body.(à®¿­8Í²€àº,
+asquid:S2147"ECombine this catch with the one at line 525, which has the same body.(à®¿­8Í²€àº,
+asquid:S2147"ECombine this catch with the one at line 694, which has the same body.(åşáÿ8Í²€àº,
+asquid:S2147"ECombine this catch with the one at line 768, which has the same body.(”ı¾8Í²€àº,
+asquid:S2147"ECombine this catch with the one at line 785, which has the same body.(åşáÿ8Í²€àº,
+ysquid:S00116"WRename this field "SUBMITButton" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Ëù¿şÿÿÿÿ8Í²€àº,
+}squid:S00116"[Rename this field "RTextScrollPane1" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(—‰á¼øÿÿÿÿ8Í²€àº,
+}squid:S00116"[Rename this field "RSyntaxTextArea1" to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ã³²Œşÿÿÿÿ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(íŞÚƒ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‡œÿÄ8Í²€àº,
+ssquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(¾±“øÿÿÿÿ8Í²€àº,
+ssquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(™òÄ½ùÿÿÿÿ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(íŞÚƒ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‡œÿÄ8Í²€àº,
+ssquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‡ÄÍÆúÿÿÿÿ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‡œÿÄ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(íŞÚƒ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(‡œÿÄ8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(ùçÚ„8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(Úâ†€8Í²€àº,
+nsquid:S00117"QRename this local variable to match the regular expression '^[a-z][a-zA-Z0-9]*$'.(İÃ‰¾8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(Âşÿâûÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(Âşÿâûÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(Âşÿâûÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(Âşÿâûÿÿÿÿ8Í²€àº,
+?squid:S1148"#Use a logger to log this exception.(ï¡€»8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+Dsquid:S1148"#Use a logger to log this exception.(€ÉÔ…ıÿÿÿÿ8Í²€àº,
+b
+squid:S899"BDo something with the "boolean" value returned by "createNewFile".(ôü¿Ÿÿÿÿÿÿ8Í²€àº,
+_squid:S1155">Use isEmpty() to check whether the collection is empty or not.(‹Å‘¿üÿÿÿÿ8Í²€àº,
+_squid:S1155">Use isEmpty() to check whether the collection is empty or not.(÷ˆŠóüÿÿÿÿ8Í²€àº,
+_squid:S1155">Use isEmpty() to check whether the collection is empty or not.(‘€ÌËúÿÿÿÿ8Í²€àº,

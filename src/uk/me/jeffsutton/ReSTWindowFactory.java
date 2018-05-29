@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
-import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
@@ -38,8 +37,11 @@ import uk.me.jeffsutton.xml.charles.Header;
 import uk.me.jeffsutton.xml.charles.Transaction;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.DefaultEditorKit;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -47,6 +49,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
@@ -204,6 +209,74 @@ public class ReSTWindowFactory implements ToolWindowFactory {
         scheme2.getStyle(Token.LITERAL_NUMBER_FLOAT).foreground = Color.decode("#6897BB");
         scheme2.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).underline = false;
         scheme2.getStyle(Token.LITERAL_STRING_DOUBLE_QUOTE).foreground = Color.decode("#A5C25C");
+
+        textField1.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                Document document = e.getDocument();
+                try {
+
+                    String s = document.getText(0, document.getLength());
+
+                    Clipboard cb=Toolkit.getDefaultToolkit().getSystemClipboard();
+                    System.out.println(cb.getData(DataFlavor.stringFlavor));
+                    if (s.equals(cb.getData(DataFlavor.stringFlavor))) {
+                        // We did do a paste
+                        URL u = new URL(s);
+                        System.out.println(u.getProtocol());
+                        if (u.getProtocol().equalsIgnoreCase("http")) {
+                            comboBox1.setSelectedIndex(0);
+                        } else if (u.getProtocol().equalsIgnoreCase("https")) {
+                            comboBox1.setSelectedIndex(1);
+                        }
+
+                        String column_names[] = {"Key", "Value"};
+                        DefaultTableModel table_model = new DefaultTableModel(column_names, 0);
+                        table1.setModel(table_model);
+                        table1.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                        try {
+                            Map<String,String> q = splitQuery(u);
+                            for (Map.Entry<String, String> el : q.entrySet()) {
+                                ((DefaultTableModel) table1.getModel()).addRow(new String[] {el.getKey(),el.getValue()});
+                            }
+                        } catch (UnsupportedEncodingException err) {
+                        }
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    document.remove(0, document.getLength());
+                                    document.insertString(0, u.getHost() + u.getPath(), null);
+                                } catch (BadLocationException e1) {
+                                    e1.printStackTrace();
+                                }
+
+                            }
+                        });
+                    }
+
+
+                } catch (BadLocationException e1) {
+                    e1.printStackTrace();
+                    return;
+                } catch (UnsupportedFlavorException e1) {
+                    e1.printStackTrace();
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+
+            }
+        });
     }
 
     private void importRequest() {

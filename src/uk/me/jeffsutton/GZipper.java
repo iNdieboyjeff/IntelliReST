@@ -8,6 +8,11 @@ import java.util.zip.GZIPOutputStream;
  * Created by jeff on 18/12/2015.
  */
 public class GZipper {
+
+    GZipper() {
+
+    }
+
     public static final String DEFAULT_CHARSET = "utf-8";
     private static final int BYTE_BLOCK_LENGTH = 1024;
 
@@ -18,7 +23,7 @@ public class GZipper {
         byte[] gzippped = null;
         try {
             gzippped = doZip(message.getBytes(DEFAULT_CHARSET));
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new Exception(e.getMessage(), e);
         }
         return gzippped;
@@ -29,21 +34,21 @@ public class GZipper {
 
         ByteArrayInputStream is = null;
         ByteArrayOutputStream bos = null;
-        GZIPOutputStream gzip_os = null;
+        GZIPOutputStream gzipOS = null;
         byte[] compressedBytes = null;
         try{
             is = new ByteArrayInputStream(unzippedMessageByte);
             bos = new ByteArrayOutputStream();
-            gzip_os = new GZIPOutputStream(bos);
-            copy(is, gzip_os);
-            gzip_os.finish();
+            gzipOS = new GZIPOutputStream(bos);
+            copy(is, gzipOS);
+            gzipOS.finish();
             compressedBytes = bos.toByteArray();
         }catch(IOException e){
             throw new Exception(e.getMessage(), e);
         }finally{
             try{
                 if(is != null){is.close();}
-                if(gzip_os != null){gzip_os.close();}
+                if(gzipOS != null){gzipOS.close();}
                 if(bos != null){bos.close();}
             }catch(IOException e){
                 //ignore
@@ -59,7 +64,7 @@ public class GZipper {
         try {
             gzippped = doUnZip(gzippedMessage);
             unzippedMessage = new String(gzippped, DEFAULT_CHARSET);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new Exception(e.getMessage(), e);
         }
         return unzippedMessage;
@@ -81,18 +86,18 @@ public class GZipper {
         }
 
         ByteArrayOutputStream bos = null;
-        InputStream gzip_is = null;
+        InputStream gzipIS = null;
         byte[] bytes = null;
         try{
             bos = new ByteArrayOutputStream();
-            gzip_is = new GZIPInputStream(in);
-            copy(gzip_is,bos);
+            gzipIS = new GZIPInputStream(in);
+            copy(gzipIS,bos);
             bytes = bos.toByteArray();
         }catch(IOException e){
             throw new Exception(e.getMessage(), e);
         }finally{
             try{
-                if(gzip_is != null) gzip_is.close();
+                if(gzipIS != null) gzipIS.close();
                 if(bos != null) bos.close();
             }catch(IOException e){
                 //ignore
@@ -138,9 +143,11 @@ public class GZipper {
         finally{
             try{
                 if(writer != null){writer.close();}
-                if(gzipInputStream != null){gzipInputStream.close();}
             }catch(IOException e){
                 //ignore
+            }
+            if (gzipInputStream != null) {
+                gzipInputStream.close();
             }
         }
         return result;
@@ -181,7 +188,7 @@ public class GZipper {
 
     private static int readUShort(InputStream in) throws IOException {
         int b = readUByte(in);
-        return ((int)readUByte(in) << 8) | b;
+        return (readUByte(in) << 8) | b;
     }
 
     /*

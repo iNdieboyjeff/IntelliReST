@@ -17,27 +17,21 @@
 
 package uk.me.jeffsutton;
 
-import android.util.Log;
-
 import com.squareup.okhttp.*;
-
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import okio.Buffer;
 import okio.BufferedSource;
 
 import javax.swing.*;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Interceptor for OKHttp that logs the request and response to the logcat.</p>
  */
 public class OKHttpLoggingInterceptor implements Interceptor {
     public static final Charset UTF8 = Charset.forName("UTF-8");
-    private static final String LOG_TAG = OKHttpLoggingInterceptor.class.getSimpleName();
     private JTextArea textArea;
 
     public OKHttpLoggingInterceptor(JTextArea textArea) {
@@ -56,28 +50,20 @@ public class OKHttpLoggingInterceptor implements Interceptor {
         textArea.append("\n---------------------------------------------------\n");
         textArea.append("Request to:    [" + request.method() + "] " + request.urlString() + "\n");
 
+        Buffer buffer1 = null;
         try {
             if (request.body() != null) {
-                Buffer buffer = new Buffer();
-                request.body().writeTo(buffer);
-                textArea.append( "Request body:  " + buffer.readUtf8() + "\n");
+                buffer1 = new Buffer();
+                request.body().writeTo(buffer1);
+                textArea.append( "Request body:  " + buffer1.readUtf8() + "\n");
             }
-        } catch (Exception ignored) {}
-
-//        Headers headers = request.headers();
-//        Map<String, String> newHeads = new HashMap<String, String>();
-//
-//        for (Map.Entry<String, List<String>> entry : headers.toMultimap().entrySet()) {
-//            if (entry.getKey().equalsIgnoreCase("Accept-Encoding") && entry.getValue().contains("gzip")) {
-//
-//            } else {
-//                newHeads.put(entry.getKey(), entry.getValue().toString());
-//                textArea.append("Request head:  " + entry.getKey()
-//                        + ": " + entry.getValue() + "\n");
-//            }
-//        }
-//
-//        request = request.newBuilder().headers(Headers.of(newHeads)).build();
+        } catch (Exception ignored) {
+            // Do nothing
+        } finally {
+            if (buffer1 != null) {
+                buffer1.close();
+            }
+        }
 
         long t1 = System.nanoTime();
         com.squareup.okhttp.Response response = chain.proceed(request);
@@ -120,8 +106,5 @@ public class OKHttpLoggingInterceptor implements Interceptor {
 
         textArea.append( "Response body: " + msg + "\n");
         return response;
-//        return response.newBuilder()
-//                .body(ResponseBody.create(response.body().contentType(), bo))
-//                .build();
     }
 }
